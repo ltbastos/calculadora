@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora Comitê Visão Única</title>
+  <link rel="icon" type="image/png" href="img/favicon.png">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+<body>
+  <div class="container">
+    <h1>Calculadora Comitê Visão Única</h1>
+
+    <!-- Informações da empresa -->
+ <section class="info-empresa bg-preenchimento">
+
+
+   <!-- Visão -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; margin-bottom: 10px;">
+  <label style="font-weight: bold;">Visão:</label>
+  <div class="tooltip-wrapper">
+    <span class="tooltip-icon">i</span>
+    <span class="tooltip-text">
+      Na visão <strong>Grupo Econômico</strong>, preencha as informações <strong>totais consolidadas</strong> do cliente, e <strong>não os dados individuais</strong> de cada empresa do grupo.
+    </span>
+  </div>
+  </div>
+    <div class="radio-toggle">
+      <input type="radio" id="visao-cnpj" name="tipo-visao" value="CNPJ">
+      <label for="visao-cnpj">CNPJ</label>
+
+      <input type="radio" id="visao-grupo" name="tipo-visao" value="Grupo Econômico">
+      <label for="visao-grupo">Grupo Econômico</label>
+    </div> <br>
+
+
+
+    <!-- Campo Número do Grupo -->
+<div id="campo-numero-grupo" style="display: none; margin-top: 15px;">
+  <label style="display: block; margin-bottom: 10px; font-weight: bold;">Número do Grupo:
+    <input type="number" id="numero-grupo" placeholder="Digite o número do grupo" style="width: 100%; padding: 8px; margin-top: 5px;">
+  </label>
+</div> <br>
+
+<label style="display: block; margin-bottom: 10px; font-weight: bold;">Nome da Empresa:
+      <input type="text" id="nome-empresa" placeholder="Digite o nome da empresa" style="width: 100%; padding: 8px; margin-top: 5px;">
+    </label>
+
+
+  <!-- Campo Composição -->
+  <div id="campo-composicao" style="display: none;">
+  <label style="display: block; margin-bottom: 10px; font-weight: bold; font-size: 1.1rem;">Composição do Grupo Econômico:</label>
+
+  <div class="composicao-wrapper">
+
+    <!-- CNPJs -->
+    <div class="composicao-coluna">
+      <label>CNPJs:</label>
+      <div id="lista-cnpjs" class="composicao-lista"></div>
+      <input type="text" id="input-cnpj" placeholder="Digite um CNPJ e pressione ENTER">
+    </div>
+
+    <!-- Agências -->
+    <div class="composicao-coluna">
+      <label>Agência(s):</label>
+      <div id="lista-agencias" class="composicao-lista"></div>
+      <input type="text" id="input-agencia" placeholder="Digite uma agência e pressione ENTER">
+    </div>
+
+    <!-- Contas -->
+    <div class="composicao-coluna">
+      <label>Conta(s):</label>
+      <div id="lista-contas" class="composicao-lista"></div>
+      <input type="text" id="input-conta" placeholder="Digite uma conta e pressione ENTER">
+    </div>
+
+  </div>
+</div>
+
+<br>
+
+
+
+
+    
+
+    <label style="display: block; margin-bottom: 10px; font-weight: bold;">Agência (apenas correntistas):
+    <input type="text" id="agencia" inputmode="numeric" pattern="\d*" placeholder="Digite o número da agência" style="width: 100%; padding: 8px; margin-top: 5px;">
+  </label>
+
+  <label style="display: block; margin-bottom: 10px; font-weight: bold;">Conta (apenas correntistas):
+    <input type="text" id="conta" inputmode="numeric" pattern="\d*" placeholder="Digite o número da conta" style="width: 100%; padding: 8px; margin-top: 5px;">
+  </label>
+
+  <label style="display: block; margin-bottom: 10px; font-weight: bold;">CNPJ:
+    <input type="text" id="cnpj-empresa" inputmode="numeric" pattern="\d*" placeholder="Digite o CNPJ" style="width: 100%; padding: 8px; margin-top: 5px;">
+  </label>
+
+
+    <label style="display: block; margin-bottom: 10px; font-weight: bold;">Faturamento Total Mensal com Cartões (R$):
+      <input type="number" id="fat-mensal" placeholder="Ex: 50000" style="width: 100%; padding: 8px; margin-top: 5px;">
+    </label>
+
+    <label style="display: block; font-weight: bold;">Faturamento Total Anual com Cartões (R$):
+      <input type="text" id="fat-anual" disabled style="width: 100%; padding: 8px; margin-top: 5px; background-color: #eaeaea;">
+    </label> <br>
+
+
+  <label style="display: block; margin-bottom: 10px; font-weight: bold;">Tipo de Cliente:</label>
+<div class="radio-toggle">
+  <input type="radio" id="tipo-conquista" name="tipo-cliente" value="Conquista">
+  <label for="tipo-conquista">Conquista</label>
+
+  <input type="radio" id="tipo-reconquista" name="tipo-cliente" value="Reconquista">
+  <label for="tipo-reconquista">Reconquista</label>
+
+  <input type="radio" id="tipo-blindagem" name="tipo-cliente" value="Blindagem">
+  <label for="tipo-blindagem">Blindagem</label>
+</div>
+
+    <div style="margin-top: 15px;">
+    <label style="display: block; font-weight: bold; margin-bottom: 10px;">Recebíveis Antecipados (R.A)?</label>
+    <div class="radio-toggle">
+      <input type="radio" id="ra-sim" name="possui-ra" value="sim">
+      <label for="ra-sim">Sim</label>
+
+      <input type="radio" id="ra-nao" name="possui-ra" value="nao">
+      <label for="ra-nao">Não</label>
+    </div>
+  </div>
+
+</section>
+
+
+  <!-- Seção de Comparativo Geral -->
+ <section class="bloco-comparativo bg-taxas">
+  <!-- Seções de Débito e Crédito -->
+  <div id="secoes-comparativas"></div>
+
+  <!-- Seção de Parcelamento -->
+  <div id="parcelamento-wrapper" class="transition-wrapper"></div>
+
+  <!-- Botão para adicionar/remover parcelamento -->
+  <div class="form-actions">
+    <button id="btn-toggle-parcelamento" onclick="toggleSeção('parcelamento-wrapper')">+ Parcelamento</button>
+  </div>
+
+  <!-- QUADRANTES DE RESULTADO DAS TAXAS -->
+  <div id="resultado-taxas" class="resultado-taxas-box" style="display: none;">
+  <div class="quadrante-taxa visa">
+    <h4>💳 VISA</h4>
+    <p>Mensal: <strong>R$ <span id="visa-mensal">0,00</span></strong></p>
+    <p>Anual: <strong>R$ <span id="visa-anual">0,00</span></strong></p>
+  </div>
+
+  <div class="quadrante-taxa master">
+    <h4>💳 MASTER</h4>
+    <p>Mensal: <strong>R$ <span id="master-mensal">0,00</span></strong></p>
+    <p>Anual: <strong>R$ <span id="master-anual">0,00</span></strong></p>
+  </div>
+
+  <div class="quadrante-taxa elo">
+    <h4>💳 ELO</h4>
+    <p>Mensal: <strong>R$ <span id="elo-mensal">0,00</span></strong></p>
+    <p>Anual: <strong>R$ <span id="elo-anual">0,00</span></strong></p>
+  </div>
+  </div>
+
+</section>
+
+
+
+<!-- Seção Equipamentos -->
+  <section class="equipamentos-cielo bg-equipamentos">
+  <h2>
+    <span>Informações de Equipamentos</span>
+    <span class="tooltip-wrapper">
+      <span class="tooltip-icon">i</span>
+      <span class="tooltip-text">
+        Compare o custo total mensal e anual dos equipamentos da Cielo com os da concorrência. <br>
+
+        <br>O sistema multiplica a quantidade de máquinas informadas pelo custo unitário de cada modelo (ZIP, FLASH, LIO e TEF) para calcular o total mensal. <br>
+
+        <br>Em seguida, esse valor é projetado para o ano. Assim, é possível entender qual opção representa menor despesa ao longo do tempo.
+      </span>
+    </span>
+  </h2>
+
+  <form id="equipamentos-form">
+    <table class="tabela-equipamentos">
+      <thead>
+        <tr>
+          <th>Informações<br>Máquina/Custo</th>
+          <th>ZIP</th>
+          <th>FLASH</th>
+          <th>LIO</th>
+          <th>TEF</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Qtd Cielo</td>
+          <td><input type="number" name="qtd-zip"></td>
+          <td><input type="number" name="qtd-flash"></td>
+          <td><input type="number" name="qtd-lio"></td>
+          <td><input type="number" name="qtd-tef"></td>
+        </tr>
+        <tr>
+          <td>Qtd Concorrente</td>
+          <td><input type="number" name="qtdc-zip"></td>
+          <td><input type="number" name="qtdc-flash"></td>
+          <td><input type="number" name="qtdc-lio"></td>
+          <td><input type="number" name="qtdc-tef"></td>
+        </tr>
+        <tr>
+          <td>Custo Unitário Mensal Cielo</td>
+          <td><input type="number" name="cielo-zip"></td>
+          <td><input type="number" name="cielo-flash"></td>
+          <td><input type="number" name="cielo-lio"></td>
+          <td><input type="number" name="cielo-tef"></td>
+        </tr>
+        <tr>
+          <td>Custo Unitário Mensal Concorrente</td>
+          <td><input type="number" name="conc-zip"></td>
+          <td><input type="number" name="conc-flash"></td>
+          <td><input type="number" name="conc-lio"></td>
+          <td><input type="number" name="conc-tef"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div id="resultado-equipamentos" style="display: none;"></div>
+
+    <div class="form-actions">
+      <button type="button" class="add-btn green" onclick="calcularEquipamentos()">Calcular Equipamentos</button>
+      <button type="button" class="add-btn red" onclick="limparEquipamentos()">Limpar Equipamento</button>
+    </div>
+  </form>
+</section>
+
+
+<!-- Seção Serviços -->
+<section class="servicos bg-servicos">
+  <h2>
+  <h2>
+  <span><i class="fas fa-clipboard-list"></i> Produtos e Serviços</span>
+  <span class="tooltip-wrapper">
+    <span class="tooltip-icon">i</span>
+    <span class="tooltip-text">
+      Esta seção compara os custos dos serviços cobrados atualmente com a proposta da Cielo. <br><br>
+       <strong>Como calculamos:</strong><br>
+      • Subtraímos o valor proposto do valor atual (Atual - Proposto).<br>
+      • Multiplicamos essa diferença pela quantidade de transações para saber a economia mensal.<br>
+      • Multiplicamos o valor mensal por 12 para obter a economia anual.<br><br>
+      O objetivo é mostrar quanto o cliente pode economizar por mês e por ano com a nova proposta.
+    </span>
+  </span>
+</h2>
+
+
+  <form id="form-servicos">
+    <table class="tabela-equipamentos">
+     <thead>
+      <tr>
+        <th colspan="4" style="background-color: #d9ecf2; color: #003366; font-size: 0.85rem; text-align: center;">
+          Valor pago pelo cliente / Mês (R$)
+        </th>
+        <th colspan="3" style="background-color: #f9e6e8; color: #8b0000; font-size: 0.85rem; text-align: center;">
+          Redução (R$)
+        </th>
+      </tr>
+      <tr>
+        <th>Produto / Serviço</th>
+        <th>Qtd. Transações</th>
+        <th>Atual (R$) Unitário</th>
+        <th>Proposto (R$) Unitário</th>
+        <th>Mês</th>
+        <th>Ano</th>
+        <th>% Dif</th>
+      </tr>
+    </thead>
+
+
+      <tbody id="corpo-servicos">
+        <!-- Linhas serão inseridas via JavaScript -->
+      </tbody>
+   <tfoot>
+      <tr>
+        <td><strong>TOTAL</strong></td>
+        <td class="bg-calculado"><span id="total-qtd"></span></td>
+        <td class="bg-calculado"><span id="total-atual"></span></td>
+        <td class="bg-calculado"><span id="total-proposto"></span></td>
+        <td class="bg-calculado"><span id="total-mes"></span></td>
+        <td class="bg-calculado"><span id="total-ano"></span></td>
+        <td class="bg-calculado"><span id="total-percentual"></span></td>
+      </tr>
+    </tfoot>
+  </table>
+
+    <div class="form-actions">
+      <button type="button" class="add-btn green" onclick="calcularServicos()">Calcular Serviços</button>
+      <button type="button" class="add-btn red" onclick="limparServicos()">Limpar Serviços</button>
+    </div>
+  </form>
+
+  <div id="resultado-servicos" style="display: none; margin-top: 30px;">
+  <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+    
+    <div style="
+      flex: 1;
+      min-width: 240px;
+      background: #e8f4fc;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    ">
+      <h4 style="margin-bottom: 12px; color: #003366;">📆 Redução Mensal</h4>
+      <p>Valor: <strong>R$ <span id="resumo-serv-mes">0,00</span></strong></p>
+      <p>Média Percentual: <strong><span id="resumo-serv-perc">0.0%</span></strong></p>
+    </div>
+
+    <div style="
+      flex: 1;
+      min-width: 240px;
+      background: #e6fcef;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    ">
+      <h4 style="margin-bottom: 12px; color: #003366;">📅 Redução Anual</h4>
+      <p>Valor: <strong>R$ <span id="resumo-serv-ano">0,00</span></strong></p>
+      <p>Média Percentual: <strong><span id="resumo-serv-perc-ano">0.0%</span></strong></p>
+    </div>
+
+  </div>
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- Seção Invest Fácil – Projeção com Conquista de Caixa -->
+<section class="invest-facil bg-invest">
+  <h2>
+    <span>Invest Fácil – Projeção com Conquista de Caixa</span>
+    <span class="tooltip-wrapper">
+      <span class="tooltip-icon">i</span>
+      <span class="tooltip-text">
+        A receita do Invest Fácil é apenas projeção, pois dependerá do saldo médio e do prazo de permanência do recurso em conta. <br><br>
+        Ou seja, <strong >ela poderá, ou não, ocorrer</strong>. Por isso, é importante verificar o perfil do cliente.
+        <hr style="margin:8px 0;"> <br>
+        <strong>Como os valores são calculados:</strong><br>
+        • <strong>Saldo</strong>: soma das entradas (faturamento com cartões, boletos e Pix) menos as saídas (pagamentos diversos e folha).<br> <br>
+        • <strong>Saldo Médio Invest Projetado</strong>: 1,36% sobre o saldo mensal.<br><br>
+        • <strong>Resultado Invest Projetado</strong>: 5% sobre o valor do repasse.
+      </span>
+    </span>
+  </h2>
+
+
+  <form id="invest-facil-form">
+  <table class="tabela-equipamentos">
+    <thead>
+      <tr>
+        <th>O QUE O CLIENTE TRARÁ NA NEGOCIAÇÃO</th>
+        <th>VOLUME MÊS (R$)</th>
+        <th>VOLUME ANO (R$)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Volume Faturamento Cartões</td>
+        <td><input type="number" id="invest-fat" oninput="calcularInvestFacilParcial()"></td>
+        <td><input type="text" id="invest-fat-ano" disabled></td>
+      </tr>
+      <tr>
+        <td>Volume Boletos</td>
+        <td><input type="number" id="invest-boletos" oninput="calcularInvestFacilParcial()"></td>
+        <td><input type="text" id="invest-boletos-ano" disabled></td>
+      </tr>
+      <tr>
+        <td>Volume Recebimento de Pix</td>
+        <td><input type="number" id="invest-pix" oninput="calcularInvestFacilParcial()"></td>
+        <td><input type="text" id="invest-pix-ano" disabled></td>
+      </tr>
+      <tr>
+        <td>Volume Pagamentos Diversos</td>
+        <td><input type="number" id="invest-diversos" oninput="calcularInvestFacilParcial()"></td>
+        <td><input type="text" id="invest-diversos-ano" disabled></td>
+      </tr>
+      <tr>
+        <td>Volume Folha de Pagamento</td>
+        <td><input type="number" id="invest-folha" oninput="calcularInvestFacilParcial()"></td>
+        <td><input type="text" id="invest-folha-ano" disabled></td>
+      </tr>
+      <tr>
+        <td><strong>Saldo</strong></td>
+        <td><input type="text" id="invest-saldo-mes" disabled></td>
+        <td><input type="text" id="invest-saldo-ano" disabled></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div id="resultado-invest" class="invest-resumo-box">
+    <div class="quadrante-invest invest-saldo">
+      <h4>📊 Saldo Médio Invest Projetado</h4>
+      <p>Saldo Médio Mensal: <strong>R$ <span id="repasse-mes">0,00</span></strong></p>
+      <p>Saldo Médio Anual: <strong>R$ <span id="repasse-ano">0,00</span></strong></p>
+    </div>
+
+    <div class="quadrante-invest invest-resultado">
+      <h4>📈 Resultado Invest Projetado</h4>
+      <p>Resultado Mensal: <strong>R$ <span id="incremento-mes">0,00</span></strong></p>
+      <p>Resultado Anual: <strong>R$ <span id="incremento-ano">0,00</span></strong></p>
+    </div>
+
+    <div class="invest-disclaimer">
+      ⚠️ A receita do Invest Fácil é apenas projeção, pois dependerá do saldo médio e do prazo de permanência do recurso em conta.<br><br>
+      Ou seja, <strong>ela poderá, ou não, ocorrer</strong>. Por isso, é importante verificar o perfil do cliente.
+    </div>
+  </div>
+
+  <div class="form-actions" style="margin-top: 25px;">
+    <button type="button" class="add-btn green" onclick="calcularInvestFacil()">Calcular Projeção</button>
+    <button type="button" class="add-btn red" onclick="limparInvestFacil()">Limpar Invest Fácil</button>
+  </div>
+</form>
+
+</section>
+
+
+
+
+<!-- GDAD -->
+<section id="gdad-section" class="secao-calculo bg-gdad">
+  <h2>
+    <span>GDAD</span>
+    <span class="tooltip-wrapper">
+      <span class="tooltip-icon">i</span>
+      <span class="tooltip-text">
+        Este valor é calculado automaticamente com base no faturamento com cartões informado na seção <strong>Invest Fácil</strong>.<br><br>
+        Se R.A estiver marcado como <strong>Sim</strong>, o sistema aplica <strong>0,30%</strong> sobre o faturamento.<br>
+        Se R.A estiver como <strong>Não</strong>, aplica-se <strong>0,15%</strong>.<br><br>
+        O resultado representa o <strong>potencial estimado de retorno via GDAD</strong> em projeção mensal e anual.
+      </span>
+    </span>
+  </h2>
+
+  <form id="gdad-form">
+    <table class="tabela-equipamentos">
+      <thead>
+        <tr>
+          <th>DADO</th>
+          <th>VALOR (R$)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Faturamento com Cartões</td>
+          <td><input type="text" id="gdad-faturamento" disabled></td>
+        </tr>
+        <tr>
+          <td><strong>Resultado GDAD Projetado (Mês)</strong></td>
+          <td><input type="text" id="gdad-mes" disabled></td>
+        </tr>
+        <tr>
+          <td><strong>Resultado GDAD Projetado (Ano)</strong></td>
+          <td><input type="text" id="gdad-ano" disabled></td>
+        </tr>
+      </tbody>
+    </table>
+  </form>
+</section>
+
+
+
+
+
+
+<!-- Resumo Final -->
+<section id="resumo-final" class="bg-resumo" style="display: none;">
+ <h2 class="titulo-secao" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+  <span>Resumo Final</span>
+  <span class="tooltip-wrapper">
+    <span class="tooltip-icon">i</span>
+    <span class="tooltip-text">
+      Este resumo consolida os resultados das seções anteriores: taxas, equipamentos, serviços e Invest Fácil.
+      Ele ajuda a visualizar a economia estimada mensal e anual com a proposta atual.
+    </span>
+  </span>
+</h2>
+
+  <!-- Linha 1: Taxas + Equipamentos -->
+  <div class="resumo-linha">
+    <div class="resumo-card bg-taxas">
+      <h4>💳 Comparativo de Taxas</h4>
+      <p id="resumo-taxas-mensal">Mensal: <strong>0</strong></p>
+      <p id="resumo-taxas-anual">Anual: <strong>0</strong></p>
+    </div>
+
+    <div class="resumo-card bg-equipamentos">
+      <h4>🖥️ Equipamentos</h4>
+      <p id="resumo-equip-qtd-cielo">Qtd. Cielo: <strong>0</strong></p>
+      <p id="resumo-equip-qtd-conc">Qtd. Conc.: <strong>0</strong></p>
+      <p id="resumo-equip-custo-cielo">Custo Cielo: <strong>0</strong></p>
+      <p id="resumo-equip-custo-conc">Custo Conc.: <strong>0</strong></p>
+      <p id="resumo-equip-dif-total"><strong>Diferença Total: 0</strong></p>
+    </div>
+  </div>
+
+  <!-- Linha 2: Serviços + Invest Fácil -->
+  <div class="resumo-linha">
+    <div class="resumo-card bg-servicos">
+      <h4>🧾 Produtos e Serviços</h4>
+      <p id="resumo-serv-qtd">Qtd. Transações: <strong>0</strong></p>
+      <p id="resumo-serv-atual">Atual: <strong>0</strong></p>
+      <p id="resumo-serv-proposto">Proposto: <strong>0</strong></p>
+      <p id="resumo-serv-mensal">Mensal: <strong>0</strong></p>
+      <p id="resumo-serv-anual">Anual: <strong>0</strong></p>
+      <p id="resumo-serv-dif"><strong>Diferença Média: 0.0%</strong></p>
+    </div>
+
+    <div class="resumo-card bg-invest">
+      <h4>📥 Invest Fácil</h4>
+      <p id="resumo-invest-repasse-mes">Repasse Mês: <strong>0</strong></p>
+      <p id="resumo-invest-repasse-ano">Repasse Anual: <strong>0</strong></p>
+      <p id="resumo-invest-incremento-mes">Incremento Mês: <strong>0</strong></p>
+      <p id="resumo-invest-incremento-ano">Incremento Anual: <strong>0</strong></p>
+    </div>
+  </div>
+
+  <!-- Linha 3: GDAD -->
+  <div class="resumo-linha">
+    <div class="resumo-card resumo-gdad bg-resumo">
+      <h4>📘 Resultado GDAD</h4>
+      <p>Resultado GDAD Projetado (Mensal): <strong>R$ <span id="resumo-gdad-mes">0,00</span></strong></p>
+      <p>Resultado GDAD Projetado (Anual): <strong>R$ <span id="resumo-gdad-ano">0,00</span></strong></p>
+    </div>
+  </div>
+
+  <!-- Resultado Total Final -->
+  <div id="bloco-resultado-total" class="resumo-cliente destaque-resultado-final" style="margin-top: 30px; text-align: center;">
+    <p style="font-size: 1.15rem; margin-bottom: 10px;">
+      Para o cliente <strong id="nome-cliente-final">"Cliente não informado"</strong>, o resultado total projetado considerando todas as seções é de:
+    </p>
+    <p id="valor-total-final" class="valor-total-final">R$ 0,00</p>
+  </div>
+</section>
+
+
+
+<!-- Seção de Botões Finais -->
+<section class="botoes-finais">
+  <button type="button" class="add-btn green" onclick="calcularResumoFinal()">✅ Calcular Resumo</button>
+  <button type="button" class="add-btn azul" onclick="exportarComoImagemPDF()">🖨️ Exportar como Imagem PDF</button>
+  <button type="button" class="add-btn red" onclick="limparTudo()">🧹 Limpar Tudo</button>
+
+</section>
+
+
+<!-- DIV OCULTA PARA GERAR O PDF -->
+ <div id="div-pdf-temp" style="display:none;"></div>
+
+ <div id="popup-confirmacao" style="display: none;"></div>
+
+</div>
+ 
+<!-- LOADING PARA GERAR PDF -->
+<div id="loading-pdf-overlay">
+  <div class="loader-mensagem">Gerando PDF, por favor aguarde</div>
+  <div class="loader-bolinhas">
+    <span></span><span></span><span></span>
+  </div>
+</div>
+
+
+
+</body>
+</html>

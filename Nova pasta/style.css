@@ -1,0 +1,972 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f4f6f8;
+  padding: 40px 20px;
+  color: #333;
+}
+
+.container {
+  max-width: 1100px;
+  margin: auto;
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+}
+
+/* Seção 1 - Preenchimento inicial (Azul Nevoeiro) */
+.bg-preenchimento {
+  background-color: #f5faff; /* azul quase branco */
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 40px;
+}
+
+/* Seção 2 - Comparativo de Taxas (Verde Chá) */
+.bg-taxas {
+  background-color: #f4fbf6; /* verde muito suave */
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 40px;
+}
+
+/* Seção 3 - Equipamentos (Amarelo Algodão) */
+.bg-equipamentos {
+  background-color: #fffef6; /* amarelo leve esbranquiçado */
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 40px;
+}
+
+/* Seção 4 - Invest Fácil (Lilás Neutro) */
+.bg-invest {
+  background-color: #fbf7fc; /* lilás bem claro */
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 40px;
+}
+
+/* Seção 5 - Resumo Final (Cinza Gelo) */
+.bg-resumo {
+  background-color: #fafafa; /* cinza quase branco */
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 40px;
+}
+
+/* Seção 6 - Serviços (Rosa Claro Neutro) */
+.bg-servicos {
+  background-color: #fef7f8; /* rosa clarinho exclusivo */
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 40px;
+}
+
+/* Seção 7 - GDAD (Verde Água Suave) */
+.bg-gdad {
+  background-color: #f3fbfb; /* verde-água bem claro */
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 40px;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #003366;
+}
+
+h2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #003366;
+  margin-bottom: 25px;
+}
+
+/* Toggle Recebíveis */
+.radio-toggle {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.radio-toggle input[type="radio"] {
+  display: none;
+}
+
+.radio-toggle label {
+  flex: 1;
+  text-align: center;
+  padding: 12px 0;
+  background-color: #f9f9f9;
+  color: #003366;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid #ccc;
+  transition: all 0.3s ease;
+}
+
+.radio-toggle input[type="radio"]:checked + label {
+  background-color: #003366;
+  color: #fff;
+  border-color: #003366;
+}
+
+.radio-toggle label:hover {
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Imagens de bandeiras */
+.logo-bandeira {
+  display: block;
+  margin: 0 auto 6px;
+  max-width: 40px;
+}
+
+/* Bloco de comparação */
+.bloco-comparativo {
+  background-color: #f3fcf7;
+  padding: 30px;
+  border-radius: 16px;
+  margin-bottom: 40px;
+}
+
+/* Tabelas comparativas */
+.tabela-comparativa {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  table-layout: fixed;
+}
+
+.tabela-comparativa th,
+.tabela-comparativa td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.tabela-comparativa thead tr:first-child th {
+  background-color: #003366;
+  color: white;
+  font-weight: bold;
+  font-size: 0.95rem;
+}
+
+.tabela-comparativa thead tr:nth-child(2) th {
+  background-color: #e1ecf9;
+  color: #003366;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.tabela-comparativa td:first-child {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+/* Inputs */
+input,
+select {
+  width: 100%;
+  padding: 10px;
+  font-size: 0.95rem;
+  margin-top: 6px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fcfcfc;
+}
+
+input[type="text"] {
+  font-size: clamp(0.7rem, 1vw, 0.9rem);
+  padding: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+
+.input-dinamico {
+  min-width: 100px;
+  width: auto;
+  max-width: 100%;
+  border: 1px solid #ccc;
+}
+
+.medidor-span {
+  position: absolute;
+  visibility: hidden;
+  height: 0;
+  overflow: hidden;
+  white-space: pre;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+input[disabled] {
+  background-color: #eaeaea;
+  color: #333;
+  font-weight: bold;
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+
+
+/* Botões */
+.form-actions {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.add-btn {
+  background-color: #007bff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 22px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin: 6px;
+  color: #fff;
+  transition: background-color 0.3s ease;
+}
+
+.add-btn:hover {
+  filter: brightness(0.9);
+}
+
+.add-btn.green {
+  background-color: #28a745;
+}
+
+.add-btn.red {
+  background-color: #dc3545;
+}
+
+.remove-btn {
+  background-color: #dc3545;
+  border: none;
+  color: white;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-top: 10px;
+}
+
+.remove-btn:hover {
+  background-color: #c82333;
+}
+
+.editable-titulo {
+  outline: none;
+  border-bottom: 1px dashed transparent;
+  padding: 2px 6px;
+  transition: border-color 0.2s ease;
+  display: inline-block;
+  min-width: 30px;
+  text-align: center;
+}
+
+.editable-titulo:focus {
+  border-color: #007bff;
+  background-color: #f0f8ff;
+}
+
+/* Botão toggle parcelamento */
+#btn-toggle-parcelamento {
+  background-color: #003366;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.3s ease;
+}
+
+#btn-toggle-parcelamento:hover {
+  background-color: #0056b3;
+}
+
+/* Parcelamento com transição */
+.transition-wrapper {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.6s ease, opacity 0.6s ease;
+}
+
+.transition-wrapper.active {
+  max-height: 2400px;
+  opacity: 1;
+}
+
+/* Equipamentos */
+/* TABELA BASE (usada por Equipamentos e Serviços) */
+.tabela-equipamentos {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 25px;
+  table-layout: fixed;
+}
+
+
+
+.tabela-equipamentos th,
+.tabela-equipamentos td {
+  border: 1px solid #ccc;
+  padding: 12px;
+  text-align: center;
+}
+
+/* Cabeçalhos sempre azul escuro */
+.tabela-equipamentos th {
+  background-color: #003366;
+  color: #fff;
+  font-weight: bold;
+}
+
+/* Primeira coluna (descrição) com fundo cinza claro */
+.tabela-equipamentos td:first-child {
+  background-color: #f4f6f8;
+  font-weight: bold;
+  text-align: left;
+}
+
+/* Apenas células de dados calculados com fundo rosa */
+.tabela-equipamentos td.bg-calculado {
+  background-color: #fef7f8;
+  font-weight: bold;
+}
+
+/* Valor calculado com fundo cinza e borda arredondada */
+.tabela-equipamentos td.bg-calculado span {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background-color: #eaeaea;
+  font-weight: bold;
+  color: #333;
+  font-size: 0.95rem;
+  text-align: center;
+  margin: 4px 0;
+  white-space: nowrap;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  min-height: 35px; /* mantém a altura mesmo vazio */
+}
+
+
+
+
+/* SEÇÃO EQUIPAMENTOS */
+.bg-equipamentos {
+  background-color: rgba(33, 150, 243, 0.03);
+  padding: 30px;
+  border-radius: 16px;
+  margin-bottom: 40px;
+  position: relative;
+}
+
+/* CÉLULAS DE RESULTADO CALCULADO */
+.bg-calculado {
+  background-color: #fef7f8; /* rosa claro ao redor */
+  font-weight: bold;
+}
+
+/* VALORES DE RESULTADO COM VISUAL PADRÃO CINZA CLARO */
+.tabela-equipamentos td.bg-calculado span {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background-color: #eaeaea; /* cinza mais claro, igual ao Invest Fácil */
+  font-weight: bold;
+  color: #333; /* cor padrão de texto */
+  font-size: 0.95rem;
+  text-align: center;
+  margin: 4px 0;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  white-space: nowrap;
+}
+
+
+/* LARGURAS DAS COLUNAS NA TABELA DE SERVIÇOS */
+.servicos .tabela-equipamentos th:nth-child(1),
+.servicos .tabela-equipamentos td:nth-child(1) {
+  width: 220px;
+  min-width: 220px;
+  max-width: 220px;
+  text-align: left;
+}
+
+.servicos .tabela-equipamentos th:nth-child(2),
+.servicos .tabela-equipamentos td:nth-child(2) {
+  width: 130px;
+}
+
+.servicos .tabela-equipamentos th:nth-child(3),
+.servicos .tabela-equipamentos td:nth-child(3),
+.servicos .tabela-equipamentos th:nth-child(4),
+.servicos .tabela-equipamentos td:nth-child(4) {
+  width: 140px;
+}
+
+/* Largura fixa para as colunas calculadas (Mês, Ano, % Dif) */
+.servicos .tabela-equipamentos th:nth-child(5),
+.servicos .tabela-equipamentos td:nth-child(5),
+.servicos .tabela-equipamentos th:nth-child(6),
+.servicos .tabela-equipamentos td:nth-child(6),
+.servicos .tabela-equipamentos th:nth-child(7),
+.servicos .tabela-equipamentos td:nth-child(7) {
+  width: 110px;
+}
+
+/* Fundo rosa apenas nas células de dados (td) das colunas calculadas */
+.servicos .tabela-equipamentos td:nth-child(5),
+.servicos .tabela-equipamentos td:nth-child(6),
+.servicos .tabela-equipamentos td:nth-child(7) {
+  background-color: #fef7f8;
+}
+
+
+/* VISUAL DOS QUADRANTES DE RESULTADOS DE SERVIÇOS */
+.resultado-servicos-box .quadrante-servico {
+  flex: 1;
+  min-width: 240px;
+  background: #f1f4f9;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.resultado-servicos-box h4 {
+  margin-bottom: 12px;
+  color: #003366;
+}
+
+
+/* Tooltip */
+.tooltip-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip-icon {
+  background-color: #003366;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 13px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  opacity: 0;
+  width: 260px;
+  background-color: #003366;
+  color: white;
+  border-radius: 8px;
+  padding: 10px;
+  position: absolute;
+  top: 28px;
+  right: 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  z-index: 100;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  transition: opacity 0.3s ease;
+}
+
+.tooltip-wrapper:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+.invest-resumo-box {
+  margin-top: 30px;
+  flex-wrap: wrap;
+  gap: 20px;
+  display: none; /* MANTÉM OCULTO por padrão */
+}
+
+.resumo-gdad {
+  background-color: #f3fbfb; /* azul claro para destacar GDAD */
+}
+
+
+.quadrante-invest {
+  flex: 1;
+  min-width: 240px;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.invest-saldo {
+  background-color: #e8f4fc;
+}
+
+.invest-resultado {
+  background-color: #e6fcef;
+}
+
+.quadrante-invest h4 {
+  margin-bottom: 12px;
+  color: #003366;
+}
+
+.invest-disclaimer {
+  background-color: #fffbe6;
+  border-left: 6px solid #ffcc00;
+  padding: 16px 20px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #333;
+  line-height: 1.6;
+  margin-top: 25px;
+  flex: 1 0 100%;
+}
+
+
+.botoes-finais {
+  background-color: #f4faff;
+  border-radius: 12px;
+  padding: 30px 20px;
+  margin-top: 50px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  border-top: 2px dashed #d0dce5;
+}
+
+/* ====== RESUMO FINAL ====== */
+
+#resumo-final {
+  margin-top: 40px;
+  font-family: 'Segoe UI', sans-serif;
+  color: #333;
+}
+
+#resumo-final h2 {
+  margin-bottom: 24px;
+  color: #003366;
+  font-size: 1.5rem;
+}
+
+.resumo-linha {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+
+.resumo-card {
+  width: 48%;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease-in-out;
+}
+
+/* ==== RESUMO FINAL DESTACADO ==== */
+.resumo-destacado {
+  margin-top: 30px;
+  background-color: #f4faff;
+  border-left: 6px solid #007bff;
+  border-radius: 12px;
+  padding: 25px 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+.resumo-destacado p {
+  font-size: 1.05rem;
+  color: #003366;
+  margin-bottom: 10px;
+}
+
+.resumo-destacado .valor-total-final {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0 auto;
+  display: inline-block;
+}
+
+.valor-total-final.positivo {
+  color: #28a745;
+}
+
+.valor-total-final.negativo {
+  color: #dc3545;
+}
+
+.valor-total-final.neutro {
+  color: #333;
+}
+
+
+.dica-edicao {
+  font-size: 0.75rem;
+  color: #666;
+  margin-left: 6px;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+
+
+/* Cores dos quadrantes */
+.resumo-taxas {
+  background-color: #e8f4fc;
+}
+
+.resumo-equip {
+  background-color: #fdeeee;
+}
+
+.resumo-invest {
+  background-color: #e6fcef;
+}
+
+.resumo-card h4 {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  color: #003366;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.resumo-card p {
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.resumo-cliente {
+  background: #f5f9fc;
+  border-left: 4px solid #4da6ff;
+  padding: 16px 24px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+}
+
+.resumo-cliente ul {
+  margin-top: 12px;
+  padding-left: 20px;
+}
+
+.resumo-cliente li {
+  margin-bottom: 6px;
+}
+
+
+#popup-confirmacao {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: #003366;
+  color: white;
+  padding: 16px 24px;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  font-weight: bold;
+}
+#popup-confirmacao.mostrar {
+  opacity: 1;
+}
+
+
+.swal2-confirm.btn-confirmar {
+  background-color: #28a745 !important;
+  color: #fff !important;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 6px;
+}
+
+.swal2-cancel.btn-cancelar {
+  background-color: #dc3545 !important;
+  color: #fff !important;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 6px;
+}
+
+
+
+/* Estilo da matriz de resumo */
+.resumo-taxas-matriz {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 30px;
+  justify-content: flex-start;
+}
+
+/* Quadrantes individuais por bandeira */
+.card-taxa-detalhado {
+  flex: 1 1 calc(33% - 20px);
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  min-width: 260px;
+  max-width: 300px;
+}
+
+.card-taxa-detalhado img {
+  width: 40px;
+  margin-bottom: 8px;
+}
+
+.card-taxa-detalhado span {
+  font-size: 16px;
+  color: #333;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.card-taxa-detalhado p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.card-taxa-detalhado hr {
+  margin: 10px 0;
+  border: none;
+  border-top: 1px solid #ddd;
+}
+
+/* Resultado total */
+.card-total {
+  flex: 1 1 100%;
+  background-color: #f1f4f6;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.card-total h4 {
+  margin-bottom: 12px;
+  font-size: 18px;
+  color: #003366;
+}
+
+/* Cores para os valores */
+.valor.positivo {
+  color: green;
+  font-weight: 600;
+}
+
+.valor.negativo {
+  color: red;
+  font-weight: 600;
+}
+
+.card-taxa-detalhado {
+  text-align: center;
+}
+
+.card-taxa-detalhado img {
+  margin: 0 auto 8px auto;
+  display: block;
+}
+
+.card-taxa-detalhado span {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+
+#loading-pdf-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255,255,255,0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 1.2rem;
+  color: #003366;
+  z-index: 9999;
+  display: none;
+}
+
+.loader-mensagem {
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.loader-bolinhas span {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin: 0 4px;
+  background-color: #007bff;
+  border-radius: 50%;
+  animation: pulo 0.6s infinite ease-in-out;
+}
+
+.loader-bolinhas span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.loader-bolinhas span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes pulo {
+  0%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+}
+
+
+/* ====== COMPOSIÇÃO COM ENTER E REMOÇÃO ====== */
+.composicao-wrapper {
+  display: flex;
+  gap: 20px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.composicao-coluna {
+  flex: 1;
+  min-width: 250px;
+}
+
+.composicao-lista {
+  min-height: 50px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px;
+  background-color: #f9f9f9;
+  margin-bottom: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.composicao-item {
+  display: inline-flex;
+  align-items: center;
+  background-color: #e1ecf9;
+  color: #003366;
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+}
+
+.composicao-item button {
+  background: transparent;
+  border: none;
+  color: #003366;
+  margin-left: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+
+
+.resumo-grupo-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 40px;
+  max-width: 1000px;
+  margin: 20px auto;
+  text-align: left;
+}
+
+.resumo-grupo-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  padding: 20px;
+  min-width: 220px;
+  font-size: 0.95rem;
+}
+
+.resumo-grupo-card h4 {
+  margin-bottom: 10px;
+  font-size: 1rem;
+  color: #003366;
+}
+
+.resumo-grupo-card ul {
+  padding-left: 20px;
+  margin: 0;
+}
+
+
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .resumo-linha {
+    flex-direction: column;
+  }
+
+  .resumo-card {
+    width: 100%;
+  }
+
+  .resumo-cliente {
+    font-size: 0.95rem;
+  }
+}
+
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .resumo-linha {
+    flex-direction: column;
+  }
+
+  .resumo-card {
+    width: 100%;
+  }
+
+  .resumo-cliente {
+    font-size: 0.95rem;
+  }
+}
