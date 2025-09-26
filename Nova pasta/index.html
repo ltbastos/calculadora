@@ -154,25 +154,14 @@
     <button id="btn-toggle-parcelamento" onclick="toggleSeção('parcelamento-wrapper')">+ Parcelamento</button>
   </div>
 
-  <!-- QUADRANTES DE RESULTADO DAS TAXAS -->
+  <!-- QUADRANTE DE RESULTADO TOTAL DAS TAXAS -->
   <div id="resultado-taxas" class="resultado-taxas-box" style="display: none;">
-  <div class="quadrante-taxa visa">
-    <h4>💳 VISA</h4>
-    <p>Mensal: <strong>R$ <span id="visa-mensal">0,00</span></strong></p>
-    <p>Anual: <strong>R$ <span id="visa-anual">0,00</span></strong></p>
-  </div>
-
-  <div class="quadrante-taxa master">
-    <h4>💳 MASTER</h4>
-    <p>Mensal: <strong>R$ <span id="master-mensal">0,00</span></strong></p>
-    <p>Anual: <strong>R$ <span id="master-anual">0,00</span></strong></p>
-  </div>
-
-  <div class="quadrante-taxa elo">
-    <h4>💳 ELO</h4>
-    <p>Mensal: <strong>R$ <span id="elo-mensal">0,00</span></strong></p>
-    <p>Anual: <strong>R$ <span id="elo-anual">0,00</span></strong></p>
-  </div>
+    <div class="quadrante-taxa total">
+      <h4>📊 Resultado Total</h4>
+      <p>Diferença Mensal: <strong>R$ <span id="taxas-total-mensal">0,00</span></strong></p>
+      <p>Diferença Anual: <strong>R$ <span id="taxas-total-anual">0,00</span></strong></p>
+      <p id="taxas-mensagem-resumo" class="mensagem-resumo-taxas"></p>
+    </div>
   </div>
 
 </section>
@@ -582,7 +571,7 @@
   <table class="tabela-equipamentos">
     <thead>
       <tr>
-        <th>O QUE O CLIENTE TRARÁ NA NEGOCIAÇÃO</th>
+        <th>PRODUTOS / SERVIÇOS</th>
         <th>VOLUME MÊS (R$)</th>
         <th>VOLUME ANO (R$)</th>
       </tr>
@@ -604,6 +593,11 @@
         <td><input type="text" id="invest-pix-ano" disabled></td>
       </tr>
       <tr>
+        <td>Volume Pix na Maquininha</td>
+        <td><input type="number" id="invest-pix-maquininha" oninput="calcularInvestFacilParcial()"></td>
+        <td><input type="text" id="invest-pix-maquininha-ano" disabled></td>
+      </tr>
+      <tr>
         <td>Volume Pagamentos Diversos</td>
         <td><input type="number" id="invest-diversos" oninput="calcularInvestFacilParcial()"></td>
         <td><input type="text" id="invest-diversos-ano" disabled></td>
@@ -614,7 +608,7 @@
         <td><input type="text" id="invest-folha-ano" disabled></td>
       </tr>
       <tr>
-        <td><strong>Saldo</strong></td>
+        <td><strong>Saldo</strong><br><small class="nota-saldo">Sistema calcula automaticamente.</small></td>
         <td><input type="text" id="invest-saldo-mes" disabled></td>
         <td><input type="text" id="invest-saldo-ano" disabled></td>
       </tr>
@@ -651,50 +645,6 @@
 
 
 
-<!-- GDAD -->
-<section id="gdad-section" class="secao-calculo bg-gdad">
-  <h2>
-    <span>GDAD</span>
-    <span class="tooltip-wrapper">
-      <span class="tooltip-icon">i</span>
-      <span class="tooltip-text">
-        Este valor é calculado automaticamente com base no faturamento com cartões informado na seção <strong>Invest Fácil</strong>.<br><br>
-        Se R.A estiver marcado como <strong>Sim</strong>, o sistema aplica <strong>0,30%</strong> sobre o faturamento.<br>
-        Se R.A estiver como <strong>Não</strong>, aplica-se <strong>0,15%</strong>.<br><br>
-        O resultado representa o <strong>potencial estimado de retorno via GDAD</strong> em projeção mensal e anual.
-      </span>
-    </span>
-  </h2>
-
-  <form id="gdad-form">
-    <table class="tabela-equipamentos">
-      <thead>
-        <tr>
-          <th>DADO</th>
-          <th>VALOR (R$)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Faturamento com Cartões</td>
-          <td><input type="text" id="gdad-faturamento" disabled></td>
-        </tr>
-        <tr>
-          <td><strong>Resultado GDAD Projetado (Mês)</strong></td>
-          <td><input type="text" id="gdad-mes" disabled></td>
-        </tr>
-        <tr>
-          <td><strong>Resultado GDAD Projetado (Ano)</strong></td>
-          <td><input type="text" id="gdad-ano" disabled></td>
-        </tr>
-      </tbody>
-    </table>
-  </form>
-</section>
-
-
-
-
 
 
 <!-- Resumo Final -->
@@ -704,67 +654,20 @@
   <span class="tooltip-wrapper">
     <span class="tooltip-icon">i</span>
     <span class="tooltip-text">
-      Este resumo consolida os resultados das seções anteriores: taxas, equipamentos, serviços e Invest Fácil.
-      Ele ajuda a visualizar a economia estimada mensal e anual com a proposta atual.
+      Este resumo reúne os principais resultados das seções anteriores e tem como objetivo facilitar a visualização da economia estimada,
+      tanto mensal quanto anual, com base nas informações cadastradas ao longo da proposta.
+
+      Ao final da análise:<br>
+      • Somamos as diferenças obtidas nas seções de Taxas e Equipamentos.<br>
+      • Consolidamos os ganhos das seções de Produtos/Serviços e de Produtos/Serviços do Pix.<br>
+      • Incorporamos o resultado da seção "O que o Cliente trará na negociação?".<br>
+
+      Por fim, agregamos o resultado do Invest Fácil e geramos o saldo final.
     </span>
   </span>
 </h2>
 
-  <!-- Linha 1: Taxas + Equipamentos -->
-  <div class="resumo-linha">
-    <div class="resumo-card bg-taxas">
-      <h4>💳 Comparativo de Taxas</h4>
-      <p id="resumo-taxas-mensal">Mensal: <strong>0</strong></p>
-      <p id="resumo-taxas-anual">Anual: <strong>0</strong></p>
-    </div>
-
-    <div class="resumo-card bg-equipamentos">
-      <h4>🖥️ Equipamentos</h4>
-      <p id="resumo-equip-qtd-cielo">Qtd. Cielo: <strong>0</strong></p>
-      <p id="resumo-equip-qtd-conc">Qtd. Conc.: <strong>0</strong></p>
-      <p id="resumo-equip-custo-cielo">Custo Cielo: <strong>0</strong></p>
-      <p id="resumo-equip-custo-conc">Custo Conc.: <strong>0</strong></p>
-      <p id="resumo-equip-dif-total"><strong>Diferença Total: 0</strong></p>
-    </div>
-  </div>
-
-  <!-- Linha 2: Serviços + Invest Fácil -->
-  <div class="resumo-linha">
-    <div class="resumo-card bg-servicos">
-      <h4>🧾 Produtos e Serviços</h4>
-      <p id="resumo-serv-qtd">Qtd. Transações: <strong>0</strong></p>
-      <p id="resumo-serv-atual">Atual: <strong>0</strong></p>
-      <p id="resumo-serv-proposto">Proposto: <strong>0</strong></p>
-      <p id="resumo-serv-mensal">Mensal: <strong>0</strong></p>
-      <p id="resumo-serv-anual">Anual: <strong>0</strong></p>
-      <p id="resumo-serv-dif"><strong>Diferença Média: 0.0%</strong></p>
-    </div>
-
-    <div class="resumo-card bg-invest">
-      <h4>📥 Invest Fácil</h4>
-      <p id="resumo-invest-repasse-mes">Repasse Mês: <strong>0</strong></p>
-      <p id="resumo-invest-repasse-ano">Repasse Anual: <strong>0</strong></p>
-      <p id="resumo-invest-incremento-mes">Incremento Mês: <strong>0</strong></p>
-      <p id="resumo-invest-incremento-ano">Incremento Anual: <strong>0</strong></p>
-    </div>
-  </div>
-
-  <!-- Linha 3: GDAD -->
-  <div class="resumo-linha">
-    <div class="resumo-card resumo-gdad bg-resumo">
-      <h4>📘 Resultado GDAD</h4>
-      <p>Resultado GDAD Projetado (Mensal): <strong>R$ <span id="resumo-gdad-mes">0,00</span></strong></p>
-      <p>Resultado GDAD Projetado (Anual): <strong>R$ <span id="resumo-gdad-ano">0,00</span></strong></p>
-    </div>
-  </div>
-
-  <!-- Resultado Total Final -->
-  <div id="bloco-resultado-total" class="resumo-cliente destaque-resultado-final" style="margin-top: 30px; text-align: center;">
-    <p style="font-size: 1.15rem; margin-bottom: 10px;">
-      Para o cliente <strong id="nome-cliente-final">"Cliente não informado"</strong>, o resultado total projetado considerando todas as seções é de:
-    </p>
-    <p id="valor-total-final" class="valor-total-final">R$ 0,00</p>
-  </div>
+  <p class="resumo-placeholder">Preencha as seções acima e clique em <strong>Calcular Resumo</strong> para visualizar o consolidado final.</p>
 </section>
 
 

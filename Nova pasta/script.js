@@ -857,10 +857,11 @@ function calcularInvestFacilParcial() {
   const fatCartao = get("invest-fat");
   const boletos = get("invest-boletos");
   const pix = get("invest-pix");
+  const pixMaquininha = get("invest-pix-maquininha");
   const diversos = get("invest-diversos");
   const folha = get("invest-folha");
 
-  const entrada = fatCartao + boletos + pix;
+  const entrada = fatCartao + boletos + pix + pixMaquininha;
   const saida = diversos + folha;
   const saldoMes = entrada - saida;
   const saldoAno = saldoMes * 12;
@@ -868,6 +869,7 @@ function calcularInvestFacilParcial() {
   setValueIfExists("invest-fat-ano", fatCartao * 12);
   setValueIfExists("invest-boletos-ano", boletos * 12);
   setValueIfExists("invest-pix-ano", pix * 12);
+  setValueIfExists("invest-pix-maquininha-ano", pixMaquininha * 12);
   setValueIfExists("invest-diversos-ano", diversos * 12);
   setValueIfExists("invest-folha-ano", folha * 12);
   setValueIfExists("invest-saldo-mes", saldoMes);
@@ -877,7 +879,7 @@ function calcularInvestFacilParcial() {
 // Exibe os quadrantes de saldo e resultado projetado
 function calcularInvestFacil() {
   const saldoEl = document.getElementById("invest-saldo-mes");
-  const saldo = saldoEl ? parseFloat(saldoEl.value.replace(".", "").replace(",", ".")) : 0;
+  const saldo = saldoEl ? parseFloat(saldoEl.value.replace(/\./g, "").replace(",", ".")) || 0 : 0;
 
   const repasseMes = saldo * 0.0136;
   const repasseAno = repasseMes * 12;
@@ -922,61 +924,9 @@ function limparInvestFacil() {
 
 
 
-// ===============================
-// GDAD
-// ===============================
-
-function calcularGdadAutomaticamente() {
-  const inputFaturamento = document.getElementById("invest-fat");
-  const gdadFaturamento = document.getElementById("gdad-faturamento");
-  const gdadMes = document.getElementById("gdad-mes");
-  const gdadAno = document.getElementById("gdad-ano");
-
-  if (!inputFaturamento || !gdadFaturamento || !gdadMes || !gdadAno) return;
-
-  const valorFaturamento = parseFloat(inputFaturamento.value || 0);
-
-  // Atualiza campo de exibição de faturamento
-  gdadFaturamento.value = valorFaturamento.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL"
-  });
-
-  // Verifica se R.A está marcado
-  const isRaSim = document.getElementById("ra-sim")?.checked;
-  const isRaNao = document.getElementById("ra-nao")?.checked;
-
-  // Só calcula se alguma opção estiver marcada
-  if (isRaSim || isRaNao) {
-    const percentual = isRaSim ? 0.003 : 0.0015;
-    const valorMensal = valorFaturamento * percentual;
-    const valorAnual = valorMensal * 12;
-
-    gdadMes.value = valorMensal.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL"
-    });
-
-    gdadAno.value = valorAnual.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL"
-    });
-  } else {
-    gdadMes.value = "";
-    gdadAno.value = "";
-  }
-}
-
-// Atualiza GDAD sempre que o faturamento ou R.A for alterado
-document.getElementById("invest-fat")?.addEventListener("input", calcularGdadAutomaticamente);
-document.getElementById("ra-sim")?.addEventListener("change", calcularGdadAutomaticamente);
-document.getElementById("ra-nao")?.addEventListener("change", calcularGdadAutomaticamente);
-
-
-
-// ===============================
-// RESUMO FINAL
-// ===============================
+  // ===============================
+  // RESUMO FINAL
+  // ===============================
 
 function formatarMoedaResumo(valor) {
   return valor.toLocaleString("pt-BR", {
@@ -1001,219 +951,240 @@ function calcularResumoFinal() {
     gruposValidos.push(`parcelamento-${i}`);
   }
 
-  let totalMensalTaxas = 0, totalAnualTaxas = 0;
-  let totalCustoCieloMensal = 0, totalCustoConcMensal = 0;
+  let totalMensalTaxas = 0;
+  let totalAnualTaxas = 0;
+  let totalCustoCieloMensal = 0;
+  let totalCustoConcMensal = 0;
 
   gruposValidos.forEach(grupo => {
     const bandeiras = grupo === "debito" ? ["visa", "master", "elo"] : ["visa", "master", "elo", "amex", "hiper"];
     bandeiras.forEach(b => {
-      const f = parseFloat(document.querySelector(`[name='${grupo}-faturamento-${b}']`)?.value || 0);
-      const tCielo = parseFloat(document.querySelector(`[name='${grupo}-taxaCielo-${b}']`)?.value || 0);
-      const tConc = parseFloat(document.querySelector(`[name='${grupo}-taxaConc-${b}']`)?.value || 0);
-      totalCustoCieloMensal += (f * tCielo) / 100;
-      totalCustoConcMensal += (f * tConc) / 100;
-      totalMensalTaxas += (f * (tConc - tCielo)) / 100;
-      totalAnualTaxas += (f * (tConc - tCielo)) / 100 * 12;
+      const faturamento = parseFloat(document.querySelector(`[name='${grupo}-faturamento-${b}']`)?.value || 0);
+      const taxaCielo = parseFloat(document.querySelector(`[name='${grupo}-taxaCielo-${b}']`)?.value || 0);
+      const taxaConc = parseFloat(document.querySelector(`[name='${grupo}-taxaConc-${b}']`)?.value || 0);
+
+      totalCustoCieloMensal += (faturamento * taxaCielo) / 100;
+      totalCustoConcMensal += (faturamento * taxaConc) / 100;
+      totalMensalTaxas += (faturamento * (taxaConc - taxaCielo)) / 100;
+      totalAnualTaxas += (faturamento * (taxaConc - taxaCielo)) / 100 * 12;
     });
   });
 
   const custoCieloAnual = totalCustoCieloMensal * 12;
   const custoConcAnual = totalCustoConcMensal * 12;
 
-  const campos = ["zip", "flash", "lio", "tef"];
-  let qtdCielo = 0, qtdConc = 0, custoCielo = 0, custoConc = 0;
+  const formatarNumero = valor => formatarMoedaResumo(isNaN(valor) ? 0 : valor);
+  const formatarComSinal = valor => `${valor >= 0 ? "" : "-"}${formatarNumero(Math.abs(valor))}`;
 
-  campos.forEach(c => {
-    const qC = parseInt(document.querySelector(`[name='qtd-${c}']`)?.value || 0);
-    const qX = parseInt(document.querySelector(`[name='qtdc-${c}']`)?.value || 0);
-    const vC = parseFloat(document.querySelector(`[name='cielo-${c}']`)?.value || 0);
-    const vX = parseFloat(document.querySelector(`[name='conc-${c}']`)?.value || 0);
-    qtdCielo += qC;
-    qtdConc += qX;
-    custoCielo += qC * vC;
-    custoConc += qX * vX;
+  const resultadoTaxas = document.getElementById("resultado-taxas");
+  if (resultadoTaxas) {
+    const spanMensal = document.getElementById("taxas-total-mensal");
+    const spanAnual = document.getElementById("taxas-total-anual");
+    const mensagem = document.getElementById("taxas-mensagem-resumo");
+
+    if (spanMensal) spanMensal.textContent = formatarComSinal(totalMensalTaxas);
+    if (spanAnual) spanAnual.textContent = formatarComSinal(totalAnualTaxas);
+
+    if (mensagem) {
+      if (totalAnualTaxas === 0) {
+        mensagem.textContent = "As propostas apresentam o mesmo custo anual.";
+      } else if (totalAnualTaxas > 0) {
+        mensagem.textContent = `A taxa do concorrente anual gera R$ ${formatarNumero(Math.abs(totalAnualTaxas))} a mais que a da Cielo.`;
+      } else {
+        mensagem.textContent = `A taxa do concorrente anual gera R$ ${formatarNumero(Math.abs(totalAnualTaxas))} a menos que a da Cielo.`;
+      }
+    }
+
+    const mostrarTaxas = Math.abs(totalCustoCieloMensal) > 0 || Math.abs(totalCustoConcMensal) > 0;
+    resultadoTaxas.style.display = mostrarTaxas ? "flex" : "none";
+  }
+
+  const camposEquip = ["zip", "flash", "lio", "tef"];
+  let qtdCielo = 0;
+  let qtdConc = 0;
+  let custoCielo = 0;
+  let custoConc = 0;
+
+  camposEquip.forEach(campo => {
+    const qtdC = parseInt(document.querySelector(`[name='qtd-${campo}']`)?.value || 0);
+    const qtdK = parseInt(document.querySelector(`[name='qtdc-${campo}']`)?.value || 0);
+    const valorC = parseFloat(document.querySelector(`[name='cielo-${campo}']`)?.value || 0);
+    const valorK = parseFloat(document.querySelector(`[name='conc-${campo}']`)?.value || 0);
+
+    qtdCielo += qtdC;
+    qtdConc += qtdK;
+    custoCielo += qtdC * valorC;
+    custoConc += qtdK * valorK;
   });
 
-  const difEquip = custoConc - custoCielo;
+  const diferencaEquipMensal = custoConc - custoCielo;
+  const diferencaEquipAnual = diferencaEquipMensal * 12;
 
-  const atualServ = parseFloat((document.getElementById("total-atual")?.textContent || "0").replace(/\./g, "").replace(",", "."));
-  const propServ = parseFloat((document.getElementById("total-proposto")?.textContent || "0").replace(/\./g, "").replace(",", "."));
-  const mesServ = parseFloat((document.getElementById("total-mes")?.textContent || "0").replace(/\./g, "").replace(",", "."));
+  const parseNumeroTexto = (texto) => {
+    if (!texto) return 0;
+    const normalizado = texto.toString().replace(/\./g, "").replace(/[^0-9,-]/g, "").replace(",", ".");
+    const numero = parseFloat(normalizado);
+    return isNaN(numero) ? 0 : numero;
+  };
+
+  const atualServ = parseNumeroTexto(document.getElementById("total-atual")?.textContent);
+  const propServ = parseNumeroTexto(document.getElementById("total-proposto")?.textContent);
+  const mesServ = parseNumeroTexto(document.getElementById("total-mes")?.textContent);
 
   const totalServicosMensal = totaisSecoes.servicosDiversos.mensal + totaisSecoes.pixMaquininha.mensal + totaisSecoes.demaisPix.mensal;
   const totalServicosAnual = totaisSecoes.servicosDiversos.anual + totaisSecoes.pixMaquininha.anual + totaisSecoes.demaisPix.anual;
 
-  const pegarTextoSpan = id => parseFloat((document.getElementById(id)?.textContent || "0").replace(/\./g, "").replace(",", "."));
+  const pegarTextoSpan = id => parseNumeroTexto(document.getElementById(id)?.textContent);
   const repM = pegarTextoSpan("repasse-mes");
   const repA = pegarTextoSpan("repasse-ano");
   const incM = pegarTextoSpan("incremento-mes");
   const incA = pegarTextoSpan("incremento-ano");
 
-  const limparInputComRS = id => {
-    const el = document.getElementById(id);
-    if (!el) return 0;
-    const texto = el.value.replace(/[^\d,]/g, "").replace(",", ".");
-    return parseFloat(texto || 0);
-  };
+  const negociacaoMensal = parseNumeroTexto(document.getElementById("negociacao-total-mes")?.textContent);
+  const negociacaoAnual = parseNumeroTexto(document.getElementById("negociacao-total-ano")?.textContent);
 
-  const gdadMes = limparInputComRS("gdad-mes");
-  const gdadAno = limparInputComRS("gdad-ano");
+  const economiaMensalCliente = totalMensalTaxas + diferencaEquipMensal + totalServicosMensal;
+  const economiaAnualCliente = totalAnualTaxas + diferencaEquipAnual + totalServicosAnual;
 
-  const cliente_mensal = totalMensalTaxas + difEquip - totalServicosMensal;
-  const cliente_anual = (totalMensalTaxas * 12) + difEquip - totalServicosAnual;
+  const resultadoMensalComInvest = economiaMensalCliente + incM;
+  const resultadoAnualComInvest = economiaAnualCliente + incA;
 
   const empresa = document.getElementById("nome-empresa")?.value || "Cliente não informado";
+  const classeValorTotal = resultadoAnualComInvest === 0 ? "neutro" : (resultadoAnualComInvest > 0 ? "positivo" : "negativo");
 
-  const classeValorTotal = cliente_mensal === 0 ? "neutro" : (cliente_mensal < 0 ? "positivo" : "negativo");
+  const mensagemTaxaAnual = totalAnualTaxas === 0
+    ? "As propostas apresentam o mesmo custo anual."
+    : totalAnualTaxas > 0
+      ? `A taxa do concorrente anual gera R$ ${formatarNumero(Math.abs(totalAnualTaxas))} a mais que a da Cielo.`
+      : `A taxa do concorrente anual gera R$ ${formatarNumero(Math.abs(totalAnualTaxas))} a menos que a da Cielo.`;
+
+  const economiaClienteDescricao = economiaMensalCliente >= 0 ? "economia" : "aumento";
+  const diferencaLiquida = incM - economiaMensalCliente;
+  const classificacaoBanco = diferencaLiquida >= 0
+    ? '<strong style="color: green;">vantajosa para o banco</strong>'
+    : '<strong style="color: red;">menos vantajosa para o banco</strong>';
+
+  const resumoGrupo = document.getElementById("visao-grupo")?.checked ? (() => {
+    const getListItems = (selector) =>
+      [...document.querySelectorAll(selector)]
+        .map(el => `<li>${el.childNodes[0].textContent.trim()}</li>`)
+        .join("");
+
+    const cnpjs = getListItems("#lista-cnpjs .composicao-item");
+    const agencias = getListItems("#lista-agencias .composicao-item");
+    const contas = getListItems("#lista-contas .composicao-item");
+
+    if (!cnpjs && !agencias && !contas) return "";
+
+    return `
+      <div class="resumo-cliente destaque-resultado-final" style="margin-top: 30px; text-align: center;">
+        <p style=\"font-size: 1rem; margin-bottom: 12px;\">Composição informada para o grupo econômico:</p>
+        <div class=\"resumo-grupo-container\">
+          ${cnpjs ? `
+            <div class=\"resumo-grupo-card\">
+              <h4>📄 CNPJs do Grupo</h4>
+              <ul>${cnpjs}</ul>
+            </div>` : ""}
+          ${agencias ? `
+            <div class=\"resumo-grupo-card\">
+              <h4>🏦 Agências</h4>
+              <ul>${agencias}</ul>
+            </div>` : ""}
+          ${contas ? `
+            <div class=\"resumo-grupo-card\">
+              <h4>💳 Contas</h4>
+              <ul>${contas}</ul>
+            </div>` : ""}
+        </div>
+      </div>
+    `;
+  })() : "";
 
   const html = `
-  <div id="bloco-resultado-total" class="resumo-cliente destaque-resultado-final" style="margin-bottom: 24px; text-align: center;">
-    <p style="font-size: 1.1rem; margin-bottom: 10px;">
-      Para o cliente <strong id="nome-cliente-final">${empresa}</strong>, o resultado total projetado considerando todas as seções é:
-    </p>
-    <p id="valor-total-final" class="valor-total-final ${classeValorTotal}">R$ ${formatarMoedaResumo(Math.abs(cliente_anual))}</p>
-  </div>
-
-  <div class="resumo-linha">
-    <div class="resumo-card bg-taxas">
-      <h4>📊 Comparativo de Taxas</h4>
-      <p>Custo Cielo Mensal: <strong>${formatarMoedaResumo(totalCustoCieloMensal)}</strong></p>
-      <p>Custo Concorrente Mensal: <strong>${formatarMoedaResumo(totalCustoConcMensal)}</strong></p>
-      <p>Custo Cielo Anual: <strong>${formatarMoedaResumo(custoCieloAnual)}</strong></p>
-      <p>Custo Concorrente Anual: <strong>${formatarMoedaResumo(custoConcAnual)}</strong></p>
-      <p style="margin-top: 10px;">
-        A Cielo tem um custo <strong>${totalMensalTaxas >= 0 ? "menor" : "maior"}</strong> que o concorrente de 
-        <strong>${formatarMoedaResumo(Math.abs(totalMensalTaxas))}</strong> por mês.
+    <div id="bloco-resultado-total" class="resumo-cliente destaque-resultado-final" style="margin-bottom: 24px; text-align: center;">
+      <p style="font-size: 1.1rem; margin-bottom: 10px;">
+        Para o cliente <strong id="nome-cliente-final">${empresa}</strong>, o resultado total projetado considerando todas as seções é:
       </p>
+      <p id="valor-total-final" class="valor-total-final ${classeValorTotal}">R$ ${formatarNumero(Math.abs(resultadoAnualComInvest))}</p>
+      <p class="texto-mensal-equivalente">Equivalente a R$ ${formatarNumero(Math.abs(resultadoMensalComInvest))} por mês.</p>
     </div>
 
-    <div class="resumo-card bg-equipamentos">
-      <h4>🖥️ Equipamentos</h4>
-      <p>Qtd. Cielo: <strong>${qtdCielo}</strong></p>
-      <p>Qtd. Conc.: <strong>${qtdConc}</strong></p>
-      <p>Custo Mensal Cielo: <strong>${formatarMoedaResumo(custoCielo)}</strong></p>
-      <p>Custo Mensal Concorrente: <strong>${formatarMoedaResumo(custoConc)}</strong></p>
-      <p>Custo Anual Cielo: <strong>${formatarMoedaResumo(custoCielo * 12)}</strong></p>
-      <p>Custo Anual Concorrente: <strong>${formatarMoedaResumo(custoConc * 12)}</strong></p>
-      <p style="margin-top: 10px;">
-        A Cielo tem um custo <strong>${custoCielo < custoConc ? "menor" : "maior"}</strong> que o concorrente de 
-        <strong>${formatarMoedaResumo(Math.abs(custoCielo - custoConc))}</strong> por mês.
-      </p>
-    </div>
-  </div>
+    <div class="resumo-linha">
+      <div class="resumo-card bg-taxas">
+        <h4>💳 Comparativo de Taxas</h4>
+        <p>Custo Mensal Cielo: <strong>R$ ${formatarNumero(totalCustoCieloMensal)}</strong></p>
+        <p>Custo Mensal Concorrente: <strong>R$ ${formatarNumero(totalCustoConcMensal)}</strong></p>
+        <p>Custo Anual Cielo: <strong>R$ ${formatarNumero(custoCieloAnual)}</strong></p>
+        <p>Custo Anual Concorrente: <strong>R$ ${formatarNumero(custoConcAnual)}</strong></p>
+        <p class="destaque-diferenca">Economia Mensal: <strong>R$ ${formatarNumero(Math.abs(totalMensalTaxas))}</strong> (${totalMensalTaxas >= 0 ? "Cielo mais competitiva" : "Concorrente mais competitivo"}).</p>
+        <p class="mensagem-comparativo">${mensagemTaxaAnual}</p>
+      </div>
 
-  <div class="resumo-linha">
-    <div class="resumo-card bg-servicos">
-      <h4>🧾 Produtos e Serviços</h4>
-      <p>Custo Atual (Diversos): <strong>${formatarMoedaResumo(atualServ)}</strong></p>
-      <p>Custo Proposto (Diversos): <strong>${formatarMoedaResumo(propServ)}</strong></p>
-      <p>Redução Diversos (Mês): <strong>${formatarMoedaResumo(mesServ)}</strong></p>
-      <p>Pix na Maquininha (Mês): <strong>${formatarMoedaResumo(totaisSecoes.pixMaquininha.mensal)}</strong></p>
-      <p>Demais Serviços Pix (Mês): <strong>${formatarMoedaResumo(totaisSecoes.demaisPix.mensal)}</strong></p>
-      <p><strong>Total Mensal Consolidado: ${formatarMoedaResumo(totalServicosMensal)}</strong></p>
-      <p><strong>Total Anual Consolidado: ${formatarMoedaResumo(totalServicosAnual)}</strong></p>
-      <p style="margin-top: 10px;">
-        A proposta apresenta uma <strong>${totalServicosMensal >= 0 ? "redução" : "elevação"}</strong> de
-        <strong>${formatarMoedaResumo(Math.abs(totalServicosMensal))}</strong> por mês considerando todos os serviços.
-      </p>
+      <div class="resumo-card bg-equipamentos">
+        <h4>🖥️ Equipamentos</h4>
+        <p>Qtd. Cielo: <strong>${qtdCielo}</strong></p>
+        <p>Qtd. Concorrente: <strong>${qtdConc}</strong></p>
+        <p>Custo Mensal Cielo: <strong>R$ ${formatarNumero(custoCielo)}</strong></p>
+        <p>Custo Mensal Concorrente: <strong>R$ ${formatarNumero(custoConc)}</strong></p>
+        <p>Diferença Mensal: <strong>R$ ${formatarNumero(Math.abs(diferencaEquipMensal))}</strong> (${diferencaEquipMensal >= 0 ? "Cielo mais competitiva" : "Concorrente mais competitivo"}).</p>
+        <p>Diferença Anual: <strong>R$ ${formatarNumero(Math.abs(diferencaEquipAnual))}</strong></p>
+      </div>
     </div>
 
-    <div class="resumo-card bg-invest">
-      <h4>📅 Invest Fácil</h4>
-      <p>Saldo Médio Projetado Mensal: <strong>${formatarMoedaResumo(repM)}</strong></p>
-      <p>Saldo Médio Projetado Anual: <strong>${formatarMoedaResumo(repA)}</strong></p>
-      <p>Resultado Projetado Mensal: <strong>${formatarMoedaResumo(incM)}</strong></p>
-      <p>Resultado Projetado Anual: <strong>${formatarMoedaResumo(incA)}</strong></p>
-      <p style="margin-top: 10px;">
-        O Invest Fácil poderá gerar um <strong>acréscimo</strong> de 
-        <strong>${formatarMoedaResumo(incM)}</strong> por mês em resultado projetado.
-      </p>
+    <div class="resumo-linha">
+      <div class="resumo-card bg-servicos">
+        <h4>🧾 Produtos e Serviços Consolidados</h4>
+        <p>Serviços Diversos (Mês): <strong>R$ ${formatarNumero(mesServ)}</strong></p>
+        <p>Pix na Maquininha (Mês): <strong>R$ ${formatarNumero(totaisSecoes.pixMaquininha.mensal)}</strong></p>
+        <p>Demais Serviços Pix (Mês): <strong>R$ ${formatarNumero(totaisSecoes.demaisPix.mensal)}</strong></p>
+        <p class="destaque-diferenca">Total Economia Mensal: <strong>R$ ${formatarNumero(totalServicosMensal)}</strong></p>
+        <p>Total Economia Anual: <strong>R$ ${formatarNumero(totalServicosAnual)}</strong></p>
+      </div>
+
+      <div class="resumo-card bg-servicos negociacao-card">
+        <h4>📦 O que o Cliente trará na negociação?</h4>
+        <p>Total Mensal: <strong>R$ ${formatarNumero(negociacaoMensal)}</strong></p>
+        <p>Total Anual: <strong>R$ ${formatarNumero(negociacaoAnual)}</strong></p>
+      </div>
     </div>
-  </div>
 
-  <div class="resumo-linha">
-    <div class="resumo-card resumo-gdad bg-resumo">
-      <h4>📘 Resultado GDAD</h4>
-      <p>Resultado GDAD Projetado (Mensal): <strong>${formatarMoedaResumo(gdadMes)}</strong></p>
-      <p>Resultado GDAD Projetado (Anual): <strong>${formatarMoedaResumo(gdadAno)}</strong></p>
+    <div class="resumo-linha">
+      <div class="resumo-card bg-invest">
+        <h4>📅 Invest Fácil</h4>
+        <p>Saldo Médio Projetado (Mês): <strong>R$ ${formatarNumero(repM)}</strong></p>
+        <p>Saldo Médio Projetado (Ano): <strong>R$ ${formatarNumero(repA)}</strong></p>
+        <p>Resultado Projetado (Mês): <strong>R$ ${formatarNumero(incM)}</strong></p>
+        <p>Resultado Projetado (Ano): <strong>R$ ${formatarNumero(incA)}</strong></p>
+        <p class="mensagem-comparativo">O Invest Fácil pode adicionar R$ ${formatarNumero(incM)} por mês em resultado projetado.</p>
+      </div>
     </div>
-  </div>
 
-  ${
-    document.getElementById("visao-grupo")?.checked ? (() => {
-      const getListItems = (selector) =>
-        [...document.querySelectorAll(selector)]
-          .map(el => `<li>${el.childNodes[0].textContent.trim()}</li>`)
-          .join("");
+    ${resumoGrupo}
 
-      const cnpjs = getListItems("#lista-cnpjs .composicao-item");
-      const agencias = getListItems("#lista-agencias .composicao-item");
-      const contas = getListItems("#lista-contas .composicao-item");
-
-      if (!cnpjs && !agencias && !contas) return "";
-
-      return `
-        <div class="resumo-cliente destaque-resultado-final" style="margin-top: 30px; text-align: center;">
-          <p style=\"font-size: 1rem; margin-bottom: 12px;\">Composição informada para o grupo econômico:</p>
-          <div class=\"resumo-grupo-container\">
-            ${cnpjs ? `
-              <div class=\"resumo-grupo-card\">
-                <h4>📄 CNPJs do Grupo</h4>
-                <ul>${cnpjs}</ul>
-              </div>` : ""}
-            ${agencias ? `
-              <div class=\"resumo-grupo-card\">
-                <h4>🏦 Agências</h4>
-                <ul>${agencias}</ul>
-              </div>` : ""}
-            ${contas ? `
-              <div class=\"resumo-grupo-card\">
-                <h4>💳 Contas</h4>
-                <ul>${contas}</ul>
-              </div>` : ""}
-          </div>
-        </div>
-      `;
-    })() : ""
-  }
-
-  <div class="resumo-linha">
+    <div class="resumo-linha">
       <div class="resumo-card bg-servicos">
         <h4>👤 Visão do Cliente</h4>
-        <p><strong>Custo Final:</strong> Houve uma ${cliente_mensal < 0 ? "redução" : "elevação"} de 
-        <strong>${formatarMoedaResumo(Math.abs(cliente_mensal))}</strong> por mês e 
-        <strong>${formatarMoedaResumo(Math.abs(cliente_anual))}</strong> por ano.</p>
+        <p>Economia Mensal Projetada: <strong>R$ ${formatarNumero(Math.abs(economiaMensalCliente))}</strong> (${economiaClienteDescricao}).</p>
+        <p>Economia Anual Projetada: <strong>R$ ${formatarNumero(Math.abs(economiaAnualCliente))}</strong>.</p>
       </div>
 
       <div class="resumo-card bg-invest">
         <h4>🏦 Visão do Banco</h4>
-        <p><strong>Resultado Projetado:</strong> Estima-se um acréscimo de 
-        <strong>${formatarMoedaResumo(incM + gdadMes)}</strong> por mês e 
-        <strong>${formatarMoedaResumo(incA + gdadAno)}</strong> por ano com Invest Fácil + GDAD.</p>
+        <p>Resultado Mensal Invest Fácil: <strong>R$ ${formatarNumero(incM)}</strong></p>
+        <p>Resultado Anual Invest Fácil: <strong>R$ ${formatarNumero(incA)}</strong></p>
       </div>
     </div>
 
     <div class="resumo-cliente destaque-resultado-final" style="margin-top: 20px; text-align: center;">
-      ${(() => {
-        const diferencaLiquida = (incM + gdadMes) - cliente_mensal;
-        const classificacao = diferencaLiquida > 0 
-          ? '<strong style="color: green;">vantajosa para o banco</strong>' 
-          : '<strong style="color: red;">menos vantajosa para o banco</strong>';
-        return `
-          <p style="font-size: 1.1rem;">
-            A proposta apresenta uma diferença líquida de 
-            <strong>${formatarMoedaResumo(Math.abs(diferencaLiquida))}</strong> por mês, sendo considerada ${classificacao}.
-          </p>
-        `;
-      })()}
+      <p style="font-size: 1.05rem;">
+        A diferença líquida entre o potencial do banco e a economia entregue ao cliente é de
+        <strong>R$ ${formatarNumero(Math.abs(diferencaLiquida))}</strong> por mês,
+        sendo considerada ${classificacaoBanco}.
+      </p>
     </div>
-  </div>
-`;
+  `;
 
-
-
-
-   const resultado = document.getElementById("resumo-final");
+  const resultado = document.getElementById("resumo-final");
   if (resultado) {
     const titulo = resultado.querySelector("h2");
     const tituloClonado = titulo?.cloneNode(true);
