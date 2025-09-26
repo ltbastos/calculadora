@@ -139,7 +139,9 @@ function calcularLinha(grupo, bandeira) {
     custoCielo,
     custoConc,
     diffReais,
-    faturamento
+    faturamento,
+    taxaCielo,
+    taxaConc
   };
 }
 
@@ -147,53 +149,59 @@ function calcularLinha(grupo, bandeira) {
 
 function calcularResumo(grupo) {
   const listaBandeiras = grupo === "debito" ? ["visa", "master", "elo"] : [...bandeiras];
-  const resultados = listaBandeiras.map(b => calcularLinha(grupo, b));
-
+  let totalCustoCieloMensal = 0;
+  let totalCustoConcMensal = 0;
   let totalMensal = 0;
-  let totalAnual = 0;
+  let totalFaturamento = 0;
+  let somaTarifaCielo = 0;
+  let somaTarifaConc = 0;
 
-  let html = `<div class="resumo-taxas-matriz">`;
-
-  resultados.forEach(r => {
-    const mensalCielo = r.custoCielo;
-    const mensalConc = r.custoConc;
-    const diffMensal = mensalConc - mensalCielo;
-
-    const anualCielo = mensalCielo * 12;
-    const anualConc = mensalConc * 12;
-    const diffAnual = anualConc - anualCielo;
-
-    totalMensal += diffMensal;
-    totalAnual += diffAnual;
-
-    const corMensal = diffMensal >= 0 ? "positivo" : "negativo";
-    const corAnual = diffAnual >= 0 ? "positivo" : "negativo";
-
-    html += `
-      <div class="card-taxa-detalhado">
-        <img src="img/${r.bandeira}.png" alt="${r.bandeira.toUpperCase()}" />
-        <span>${r.bandeira.toUpperCase()}</span>
-        <p>Mensal Cielo: R$ ${mensalCielo.toFixed(2)}</p>
-        <p>Mensal Concorrente: R$ ${mensalConc.toFixed(2)}</p>
-        <p class="valor ${corMensal}">Diferença Mensal: ${diffMensal >= 0 ? "+" : "–"}R$ ${Math.abs(diffMensal).toFixed(2)}</p>
-        <hr>
-        <p>Anual Cielo: R$ ${anualCielo.toFixed(2)}</p>
-        <p>Anual Concorrente: R$ ${anualConc.toFixed(2)}</p>
-        <p class="valor ${corAnual}">Diferença Anual: ${diffAnual >= 0 ? "+" : "–"}R$ ${Math.abs(diffAnual).toFixed(2)}</p>
-      </div>
-    `;
+  listaBandeiras.forEach(b => {
+    const resultado = calcularLinha(grupo, b);
+    totalCustoCieloMensal += resultado.custoCielo;
+    totalCustoConcMensal += resultado.custoConc;
+    totalMensal += resultado.custoConc - resultado.custoCielo;
+    totalFaturamento += resultado.faturamento;
+    somaTarifaCielo += resultado.faturamento * resultado.taxaCielo;
+    somaTarifaConc += resultado.faturamento * resultado.taxaConc;
   });
 
-  const corTotalMensal = totalMensal >= 0 ? "positivo" : "negativo";
-  const corTotalAnual = totalAnual >= 0 ? "positivo" : "negativo";
+  const totalAnual = totalMensal * 12;
+  const custoCieloAnual = totalCustoCieloMensal * 12;
+  const custoConcAnual = totalCustoConcMensal * 12;
 
-  html += `
-    <div class="card-total">
-      <h4>Resultado Total</h4>
-      <p class="valor ${corTotalMensal}">Diferença Mensal Total: ${totalMensal >= 0 ? "+" : "–"}R$ ${Math.abs(totalMensal).toFixed(2)}</p>
-      <p class="valor ${corTotalAnual}">Diferença Anual Total: ${totalAnual >= 0 ? "+" : "–"}R$ ${Math.abs(totalAnual).toFixed(2)}</p>
-    </div>
-  </div>`;
+  let fraseComparativa;
+  if (totalFaturamento > 0) {
+    const mediaCielo = somaTarifaCielo / totalFaturamento;
+    const mediaConc = somaTarifaConc / totalFaturamento;
+    const diferencaTaxa = mediaConc - mediaCielo;
+
+    if (Math.abs(diferencaTaxa) < 0.0001) {
+      fraseComparativa = "As taxas médias da Cielo e do concorrente estão iguais.";
+    } else {
+      const status = diferencaTaxa > 0 ? "maior" : "menor";
+      fraseComparativa = `A taxa do concorrente atual está ${Math.abs(diferencaTaxa).toFixed(2)} p.p. ${status} do que a da Cielo.`;
+    }
+  } else {
+    fraseComparativa = "Informe os valores de faturamento e taxa para comparar as propostas.";
+  }
+
+  const classeMensal = totalMensal >= 0 ? "positivo" : "negativo";
+  const classeAnual = totalAnual >= 0 ? "positivo" : "negativo";
+
+  const html = `
+    <div class="resumo-taxas-simples">
+      <div class="card-total">
+        <h4>Resultado Total</h4>
+        <p>Custo Cielo Mensal: <strong>R$ ${formatarMoeda(totalCustoCieloMensal)}</strong></p>
+        <p>Custo Concorrente Mensal: <strong>R$ ${formatarMoeda(totalCustoConcMensal)}</strong></p>
+        <p>Custo Cielo Anual: <strong>R$ ${formatarMoeda(custoCieloAnual)}</strong></p>
+        <p>Custo Concorrente Anual: <strong>R$ ${formatarMoeda(custoConcAnual)}</strong></p>
+        <p class="valor ${classeMensal}">Diferença Mensal Total: ${totalMensal >= 0 ? "+" : "–"}R$ ${formatarMoeda(Math.abs(totalMensal))}</p>
+        <p class="valor ${classeAnual}">Diferença Anual Total: ${totalAnual >= 0 ? "+" : "–"}R$ ${formatarMoeda(Math.abs(totalAnual))}</p>
+        <p class="frase-comparativa">${fraseComparativa}</p>
+      </div>
+    </div>`;
 
   document.getElementById(`resumo-${grupo}`).innerHTML = html;
 }
@@ -322,6 +330,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 👉 ADICIONA ESSA LINHA AQUI:
   inicializarServicos();
+  inicializarPixMaquininha();
+  inicializarDemaisPix();
+  inicializarNegociacao();
 
   const fatMensal = document.getElementById("fat-mensal");
   const fatAnual = document.getElementById("fat-anual");
@@ -337,6 +348,14 @@ document.addEventListener("DOMContentLoaded", () => {
     selectRA.addEventListener("change", () => {
       window.possuiRA = selectRA.value;
     });
+  }
+
+  document.querySelectorAll('input[name="tipo-cliente"]').forEach(radio => {
+    radio.addEventListener("change", () => atualizarMensagemTipoCliente(radio.value));
+  });
+  const selecionado = document.querySelector('input[name="tipo-cliente"]:checked');
+  if (selecionado) {
+    atualizarMensagemTipoCliente(selecionado.value);
   }
 });
 
@@ -380,11 +399,39 @@ window.toggleSeção = function (id) {
 const servicosLista = [
   "Cesta de Serviços",
   "Cartão de Crédito: Anuidade",
-  "Pix na Máquina / Pix via QR Code",
   "Boletos: Tarifa de Registro",
   "Folha de Pagamento: Transmissão",
   "TED"
 ];
+
+const totaisSecoes = {
+  servicosDiversos: { mensal: 0, anual: 0 },
+  pixMaquininha: { mensal: 0, anual: 0 },
+  demaisPix: { mensal: 0, anual: 0 }
+};
+
+const pixMaquininhaDefaults = [
+  "Pix QR Code Estático",
+  "Pix QR Code Dinâmico"
+];
+
+const demaisServicosPixDefaults = [
+  "Pix Recebimento por Transferência",
+  "Pix Cobrança Online"
+];
+
+const negociacaoDefaults = [
+  "Cartões",
+  "Boletos",
+  "Pix",
+  "Outros"
+];
+
+const mensagensTipoCliente = {
+  Conquista: "A operação gera um novo resultado no quadro Cielo vs Nova destacando o ganho potencial para conquistar o cliente.",
+  Reconquista: "O comparativo Cielo vs Nova enfatiza o resultado esperado para reconquistar o cliente.",
+  Blindagem: "Os números apresentados reforçam o relacionamento atual para blindar o cliente na base Cielo."
+};
 
 function formatarInteiro(valor) {
   return Math.round(valor).toLocaleString("pt-BR");
@@ -464,6 +511,9 @@ function calcularServicos() {
   document.getElementById("total-ano").textContent = formatarInteiro(totalAno);
   document.getElementById("total-percentual").textContent = `${mediaPercentual.toFixed(1)}%`;
 
+  totaisSecoes.servicosDiversos.mensal = totalMes;
+  totaisSecoes.servicosDiversos.anual = totalAno;
+
   // Atualiza quadrantes visuais
   document.getElementById("resumo-serv-mes").textContent = formatarMoeda(totalMes);
   document.getElementById("resumo-serv-ano").textContent = formatarMoeda(totalAno);
@@ -494,11 +544,289 @@ function limparServicos() {
   document.getElementById("total-ano").textContent = "";
   document.getElementById("total-percentual").textContent = "";
 
+  totaisSecoes.servicosDiversos = { mensal: 0, anual: 0 };
+
   // Esconde o resumo visual de serviços (novidade)
   const boxResumo = document.getElementById("resultado-servicos");
   if (boxResumo) {
     boxResumo.style.display = "none";
   }
+}
+
+
+function adicionarLinhaPixMaquininha(nome = "") {
+  const tbody = document.getElementById("pix-maquininha-tbody");
+  if (!tbody) return;
+
+  const index = tbody.querySelectorAll("tr").length;
+  const linha = document.createElement("tr");
+  linha.innerHTML = `
+    <td><input type="text" name="pixm-servico-${index}" value="${nome}"></td>
+    <td><input type="number" step="0.01" name="pixm-volume-${index}"></td>
+    <td><input type="number" step="0.01" name="pixm-atual-${index}"></td>
+    <td><input type="number" step="0.01" name="pixm-proposto-${index}"></td>
+    <td><span id="pixm-mes-${index}"></span></td>
+    <td><span id="pixm-ano-${index}"></span></td>
+  `;
+  tbody.appendChild(linha);
+}
+
+function inicializarPixMaquininha() {
+  const tbody = document.getElementById("pix-maquininha-tbody");
+  if (!tbody) return;
+  if (tbody.children.length === 0) {
+    pixMaquininhaDefaults.forEach(nome => adicionarLinhaPixMaquininha(nome));
+  }
+}
+
+function calcularPixMaquininha() {
+  const tbody = document.getElementById("pix-maquininha-tbody");
+  if (!tbody) return;
+
+  let totalMensal = 0;
+
+  tbody.querySelectorAll("tr").forEach((linha, index) => {
+    const volume = parseFloat(linha.querySelector(`[name='pixm-volume-${index}']`)?.value || 0);
+    const tarifaAtual = parseFloat(linha.querySelector(`[name='pixm-atual-${index}']`)?.value || 0);
+    const tarifaProposta = parseFloat(linha.querySelector(`[name='pixm-proposto-${index}']`)?.value || 0);
+
+    const reducaoMensal = ((tarifaAtual - tarifaProposta) / 100) * volume;
+    const reducaoAnual = reducaoMensal * 12;
+
+    const spanMes = document.getElementById(`pixm-mes-${index}`);
+    const spanAno = document.getElementById(`pixm-ano-${index}`);
+    if (spanMes) spanMes.textContent = `${reducaoMensal >= 0 ? "" : "-"}${formatarMoeda(Math.abs(reducaoMensal))}`;
+    if (spanAno) spanAno.textContent = `${reducaoAnual >= 0 ? "" : "-"}${formatarMoeda(Math.abs(reducaoAnual))}`;
+
+    totalMensal += reducaoMensal;
+  });
+
+  const totalAnual = totalMensal * 12;
+
+  const totalMesSpan = document.getElementById("pix-maquininha-total-mes");
+  const totalAnoSpan = document.getElementById("pix-maquininha-total-ano");
+  if (totalMesSpan) totalMesSpan.textContent = formatarMoeda(totalMensal);
+  if (totalAnoSpan) totalAnoSpan.textContent = formatarMoeda(totalAnual);
+
+  totaisSecoes.pixMaquininha = { mensal: totalMensal, anual: totalAnual };
+
+  const resumo = document.getElementById("resultado-pix-maquininha");
+  if (resumo) {
+    const mostrar = Math.abs(totalMensal) > 0;
+    resumo.style.display = mostrar ? "flex" : "none";
+  }
+  const resumoMes = document.getElementById("resumo-pix-maquininha-mes");
+  const resumoAno = document.getElementById("resumo-pix-maquininha-ano");
+  if (resumoMes) resumoMes.textContent = formatarMoeda(totalMensal);
+  if (resumoAno) resumoAno.textContent = formatarMoeda(totalAnual);
+}
+
+function limparPixMaquininha() {
+  const tbody = document.getElementById("pix-maquininha-tbody");
+  if (tbody) {
+    tbody.querySelectorAll("input").forEach(input => { input.value = ""; });
+    tbody.querySelectorAll("span").forEach(span => { span.textContent = ""; });
+  }
+
+  const totalMesSpan = document.getElementById("pix-maquininha-total-mes");
+  const totalAnoSpan = document.getElementById("pix-maquininha-total-ano");
+  if (totalMesSpan) totalMesSpan.textContent = "0,00";
+  if (totalAnoSpan) totalAnoSpan.textContent = "0,00";
+
+  const resumo = document.getElementById("resultado-pix-maquininha");
+  if (resumo) resumo.style.display = "none";
+
+  totaisSecoes.pixMaquininha = { mensal: 0, anual: 0 };
+}
+
+
+function adicionarLinhaDemaisPix(nome = "") {
+  const tbody = document.getElementById("demais-pix-tbody");
+  if (!tbody) return;
+
+  const index = tbody.querySelectorAll("tr").length;
+  const linha = document.createElement("tr");
+  linha.innerHTML = `
+    <td><input type="text" name="demais-servico-${index}" value="${nome}"></td>
+    <td><input type="number" step="0.01" name="demais-volume-${index}"></td>
+    <td><input type="number" step="0.01" name="demais-qtd-${index}"></td>
+    <td><input type="number" step="0.01" name="demais-atual-${index}"></td>
+    <td><input type="number" step="0.01" name="demais-proposto-${index}"></td>
+    <td><span id="demais-mes-${index}"></span></td>
+    <td><span id="demais-ano-${index}"></span></td>
+  `;
+  tbody.appendChild(linha);
+}
+
+function inicializarDemaisPix() {
+  const tbody = document.getElementById("demais-pix-tbody");
+  if (!tbody) return;
+  if (tbody.children.length === 0) {
+    demaisServicosPixDefaults.forEach(nome => adicionarLinhaDemaisPix(nome));
+  }
+}
+
+function calcularDemaisServicosPix() {
+  const tbody = document.getElementById("demais-pix-tbody");
+  if (!tbody) return;
+
+  let totalQtd = 0;
+  let totalMensal = 0;
+
+  tbody.querySelectorAll("tr").forEach((linha, index) => {
+    const quantidade = parseFloat(linha.querySelector(`[name='demais-qtd-${index}']`)?.value || 0);
+    const valorAtual = parseFloat(linha.querySelector(`[name='demais-atual-${index}']`)?.value || 0);
+    const valorProposto = parseFloat(linha.querySelector(`[name='demais-proposto-${index}']`)?.value || 0);
+
+    const diferencaMensal = (valorAtual - valorProposto) * (quantidade || 1);
+    const diferencaAnual = diferencaMensal * 12;
+
+    totalQtd += quantidade || 0;
+    totalMensal += diferencaMensal;
+
+    const spanMes = document.getElementById(`demais-mes-${index}`);
+    const spanAno = document.getElementById(`demais-ano-${index}`);
+    if (spanMes) spanMes.textContent = `${diferencaMensal >= 0 ? "" : "-"}${formatarMoeda(Math.abs(diferencaMensal))}`;
+    if (spanAno) spanAno.textContent = `${diferencaAnual >= 0 ? "" : "-"}${formatarMoeda(Math.abs(diferencaAnual))}`;
+  });
+
+  const totalAnual = totalMensal * 12;
+
+  const totalQtdSpan = document.getElementById("demais-pix-total-qtd");
+  const totalMesSpan = document.getElementById("demais-pix-total-mes");
+  const totalAnoSpan = document.getElementById("demais-pix-total-ano");
+  if (totalQtdSpan) totalQtdSpan.textContent = formatarInteiro(totalQtd);
+  if (totalMesSpan) totalMesSpan.textContent = formatarMoeda(totalMensal);
+  if (totalAnoSpan) totalAnoSpan.textContent = formatarMoeda(totalAnual);
+
+  totaisSecoes.demaisPix = { mensal: totalMensal, anual: totalAnual };
+
+  const resumo = document.getElementById("resultado-demais-pix");
+  if (resumo) {
+    const mostrar = Math.abs(totalMensal) > 0;
+    resumo.style.display = mostrar ? "flex" : "none";
+  }
+  const resumoMes = document.getElementById("resumo-demais-pix-mes");
+  const resumoAno = document.getElementById("resumo-demais-pix-ano");
+  if (resumoMes) resumoMes.textContent = formatarMoeda(totalMensal);
+  if (resumoAno) resumoAno.textContent = formatarMoeda(totalAnual);
+}
+
+function limparDemaisServicosPix() {
+  const tbody = document.getElementById("demais-pix-tbody");
+  if (tbody) {
+    tbody.querySelectorAll("input").forEach(input => { input.value = ""; });
+    tbody.querySelectorAll("span").forEach(span => { span.textContent = ""; });
+  }
+
+  const totalQtdSpan = document.getElementById("demais-pix-total-qtd");
+  const totalMesSpan = document.getElementById("demais-pix-total-mes");
+  const totalAnoSpan = document.getElementById("demais-pix-total-ano");
+  if (totalQtdSpan) totalQtdSpan.textContent = "0";
+  if (totalMesSpan) totalMesSpan.textContent = "0,00";
+  if (totalAnoSpan) totalAnoSpan.textContent = "0,00";
+
+  const resumo = document.getElementById("resultado-demais-pix");
+  if (resumo) resumo.style.display = "none";
+
+  totaisSecoes.demaisPix = { mensal: 0, anual: 0 };
+}
+
+
+function adicionarLinhaNegociacao(item = "") {
+  const tbody = document.getElementById("negociacao-tbody");
+  if (!tbody) return;
+
+  const index = tbody.querySelectorAll("tr").length;
+  const linha = document.createElement("tr");
+  linha.innerHTML = `
+    <td><input type="text" name="neg-item-${index}" value="${item}"></td>
+    <td><input type="number" step="0.01" name="neg-mes-${index}"></td>
+    <td><input type="text" name="neg-ano-${index}" disabled></td>
+  `;
+
+  const inputMes = linha.querySelector(`[name='neg-mes-${index}']`);
+  if (inputMes) {
+    inputMes.addEventListener("input", () => atualizarLinhaNegociacao(index));
+  }
+
+  tbody.appendChild(linha);
+}
+
+function inicializarNegociacao() {
+  const tbody = document.getElementById("negociacao-tbody");
+  if (!tbody) return;
+  if (tbody.children.length === 0) {
+    negociacaoDefaults.forEach(item => adicionarLinhaNegociacao(item));
+  }
+}
+
+function atualizarLinhaNegociacao(index) {
+  const mensal = parseFloat(document.querySelector(`[name='neg-mes-${index}']`)?.value || 0);
+  const campoAno = document.querySelector(`[name='neg-ano-${index}']`);
+  if (campoAno) {
+    campoAno.value = `R$ ${formatarMoeda(mensal * 12)}`;
+  }
+}
+
+function calcularNegociacao() {
+  const tbody = document.getElementById("negociacao-tbody");
+  if (!tbody) return;
+
+  let totalMensal = 0;
+
+  tbody.querySelectorAll("tr").forEach((_, index) => {
+    const mensal = parseFloat(document.querySelector(`[name='neg-mes-${index}']`)?.value || 0);
+    totalMensal += mensal;
+    atualizarLinhaNegociacao(index);
+  });
+
+  const totalAnual = totalMensal * 12;
+
+  const totalMesSpan = document.getElementById("negociacao-total-mes");
+  const totalAnoSpan = document.getElementById("negociacao-total-ano");
+  if (totalMesSpan) totalMesSpan.textContent = formatarMoeda(totalMensal);
+  if (totalAnoSpan) totalAnoSpan.textContent = formatarMoeda(totalAnual);
+}
+
+function limparNegociacao() {
+  const tbody = document.getElementById("negociacao-tbody");
+  if (tbody) {
+    tbody.querySelectorAll("input[type='number']").forEach(input => { input.value = ""; });
+    tbody.querySelectorAll("input[disabled]").forEach(input => { input.value = ""; });
+  }
+
+  const totalMesSpan = document.getElementById("negociacao-total-mes");
+  const totalAnoSpan = document.getElementById("negociacao-total-ano");
+  if (totalMesSpan) totalMesSpan.textContent = "0,00";
+  if (totalAnoSpan) totalAnoSpan.textContent = "0,00";
+}
+
+
+function calcularConsolidado() {
+  const totalMensal = totaisSecoes.servicosDiversos.mensal + totaisSecoes.pixMaquininha.mensal + totaisSecoes.demaisPix.mensal;
+  const totalAnual = totaisSecoes.servicosDiversos.anual + totaisSecoes.pixMaquininha.anual + totaisSecoes.demaisPix.anual;
+
+  const spanMensal = document.getElementById("consolidado-mensal");
+  const spanAnual = document.getElementById("consolidado-anual");
+  if (spanMensal) spanMensal.textContent = formatarMoeda(totalMensal);
+  if (spanAnual) spanAnual.textContent = formatarMoeda(totalAnual);
+
+  const bloco = document.getElementById("resultado-consolidado");
+  if (bloco) {
+    const mostrar = Math.abs(totalMensal) > 0 || Math.abs(totalAnual) > 0;
+    bloco.style.display = mostrar ? "flex" : "none";
+  }
+}
+
+function limparConsolidado() {
+  const spanMensal = document.getElementById("consolidado-mensal");
+  const spanAnual = document.getElementById("consolidado-anual");
+  if (spanMensal) spanMensal.textContent = "0,00";
+  if (spanAnual) spanAnual.textContent = "0,00";
+
+  const bloco = document.getElementById("resultado-consolidado");
+  if (bloco) bloco.style.display = "none";
 }
 
 
@@ -662,6 +990,10 @@ function calcularResumoFinal() {
   calcularResumo("credito");
   calcularEquipamentos();
   calcularServicos();
+  calcularPixMaquininha();
+  calcularDemaisServicosPix();
+  calcularConsolidado();
+  calcularNegociacao();
   calcularInvestFacil();
 
   const gruposValidos = ["debito", "credito"];
@@ -707,7 +1039,9 @@ function calcularResumoFinal() {
   const atualServ = parseFloat((document.getElementById("total-atual")?.textContent || "0").replace(/\./g, "").replace(",", "."));
   const propServ = parseFloat((document.getElementById("total-proposto")?.textContent || "0").replace(/\./g, "").replace(",", "."));
   const mesServ = parseFloat((document.getElementById("total-mes")?.textContent || "0").replace(/\./g, "").replace(",", "."));
-  const anoServ = parseFloat((document.getElementById("total-ano")?.textContent || "0").replace(/\./g, "").replace(",", "."));
+
+  const totalServicosMensal = totaisSecoes.servicosDiversos.mensal + totaisSecoes.pixMaquininha.mensal + totaisSecoes.demaisPix.mensal;
+  const totalServicosAnual = totaisSecoes.servicosDiversos.anual + totaisSecoes.pixMaquininha.anual + totaisSecoes.demaisPix.anual;
 
   const pegarTextoSpan = id => parseFloat((document.getElementById(id)?.textContent || "0").replace(/\./g, "").replace(",", "."));
   const repM = pegarTextoSpan("repasse-mes");
@@ -725,15 +1059,21 @@ function calcularResumoFinal() {
   const gdadMes = limparInputComRS("gdad-mes");
   const gdadAno = limparInputComRS("gdad-ano");
 
-  const cliente_mensal = totalMensalTaxas + difEquip - mesServ;
-  const cliente_anual = (totalMensalTaxas * 12) + difEquip - (mesServ * 12);
+  const cliente_mensal = totalMensalTaxas + difEquip - totalServicosMensal;
+  const cliente_anual = (totalMensalTaxas * 12) + difEquip - totalServicosAnual;
 
   const empresa = document.getElementById("nome-empresa")?.value || "Cliente não informado";
 
-  const corCliente = cliente_mensal >= 0 ? "#28a745" : "#dc3545";
-  const textoCliente = cliente_mensal <= 0 ? "redução" : "elevação";
+  const classeValorTotal = cliente_mensal === 0 ? "neutro" : (cliente_mensal < 0 ? "positivo" : "negativo");
 
   const html = `
+  <div id="bloco-resultado-total" class="resumo-cliente destaque-resultado-final" style="margin-bottom: 24px; text-align: center;">
+    <p style="font-size: 1.1rem; margin-bottom: 10px;">
+      Para o cliente <strong id="nome-cliente-final">${empresa}</strong>, o resultado total projetado considerando todas as seções é:
+    </p>
+    <p id="valor-total-final" class="valor-total-final ${classeValorTotal}">R$ ${formatarMoedaResumo(Math.abs(cliente_anual))}</p>
+  </div>
+
   <div class="resumo-linha">
     <div class="resumo-card bg-taxas">
       <h4>📊 Comparativo de Taxas</h4>
@@ -765,13 +1105,16 @@ function calcularResumoFinal() {
   <div class="resumo-linha">
     <div class="resumo-card bg-servicos">
       <h4>🧾 Produtos e Serviços</h4>
-      <p>Custo Atual: <strong>${formatarMoedaResumo(atualServ)}</strong></p>
-      <p>Custo Proposto: <strong>${formatarMoedaResumo(propServ)}</strong></p>
-      <p>Total Mensal: <strong>${formatarMoedaResumo(mesServ)}</strong></p>
-      <p>Total Anual: <strong>${formatarMoedaResumo(anoServ)}</strong></p>
+      <p>Custo Atual (Diversos): <strong>${formatarMoedaResumo(atualServ)}</strong></p>
+      <p>Custo Proposto (Diversos): <strong>${formatarMoedaResumo(propServ)}</strong></p>
+      <p>Redução Diversos (Mês): <strong>${formatarMoedaResumo(mesServ)}</strong></p>
+      <p>Pix na Maquininha (Mês): <strong>${formatarMoedaResumo(totaisSecoes.pixMaquininha.mensal)}</strong></p>
+      <p>Demais Serviços Pix (Mês): <strong>${formatarMoedaResumo(totaisSecoes.demaisPix.mensal)}</strong></p>
+      <p><strong>Total Mensal Consolidado: ${formatarMoedaResumo(totalServicosMensal)}</strong></p>
+      <p><strong>Total Anual Consolidado: ${formatarMoedaResumo(totalServicosAnual)}</strong></p>
       <p style="margin-top: 10px;">
-        A proposta apresenta uma <strong>${mesServ > 0 ? "redução" : "elevação"}</strong> de 
-        <strong>${formatarMoedaResumo(Math.abs(mesServ))}</strong> por mês nos produtos/serviços contratados.
+        A proposta apresenta uma <strong>${totalServicosMensal >= 0 ? "redução" : "elevação"}</strong> de
+        <strong>${formatarMoedaResumo(Math.abs(totalServicosMensal))}</strong> por mês considerando todos os serviços.
       </p>
     </div>
 
@@ -796,47 +1139,45 @@ function calcularResumoFinal() {
     </div>
   </div>
 
-  <div id="bloco-resultado-total" class="resumo-cliente destaque-resultado-final" style="margin-top: 30px; text-align: center;">
-    <p style="font-size: 1.1rem; margin-bottom: 10px;">
-      Para o cliente <strong id="nome-cliente-final">${empresa}</strong>, temos o seguinte cenário:
-    </p>
+  ${
+    document.getElementById("visao-grupo")?.checked ? (() => {
+      const getListItems = (selector) =>
+        [...document.querySelectorAll(selector)]
+          .map(el => `<li>${el.childNodes[0].textContent.trim()}</li>`)
+          .join("");
 
-    ${
-      document.getElementById("visao-grupo")?.checked ? (() => {
-        const getListItems = (selector) =>
-          [...document.querySelectorAll(selector)]
-            .map(el => `<li>${el.childNodes[0].textContent.trim()}</li>`)
-            .join("");
+      const cnpjs = getListItems("#lista-cnpjs .composicao-item");
+      const agencias = getListItems("#lista-agencias .composicao-item");
+      const contas = getListItems("#lista-contas .composicao-item");
 
-        const cnpjs = getListItems("#lista-cnpjs .composicao-item");
-        const agencias = getListItems("#lista-agencias .composicao-item");
-        const contas = getListItems("#lista-contas .composicao-item");
+      if (!cnpjs && !agencias && !contas) return "";
 
-        if (!cnpjs && !agencias && !contas) return "";
-
-        return `
-          <div class="resumo-grupo-container">
+      return `
+        <div class="resumo-cliente destaque-resultado-final" style="margin-top: 30px; text-align: center;">
+          <p style=\"font-size: 1rem; margin-bottom: 12px;\">Composição informada para o grupo econômico:</p>
+          <div class=\"resumo-grupo-container\">
             ${cnpjs ? `
-              <div class="resumo-grupo-card">
+              <div class=\"resumo-grupo-card\">
                 <h4>📄 CNPJs do Grupo</h4>
                 <ul>${cnpjs}</ul>
               </div>` : ""}
             ${agencias ? `
-              <div class="resumo-grupo-card">
+              <div class=\"resumo-grupo-card\">
                 <h4>🏦 Agências</h4>
                 <ul>${agencias}</ul>
               </div>` : ""}
             ${contas ? `
-              <div class="resumo-grupo-card">
+              <div class=\"resumo-grupo-card\">
                 <h4>💳 Contas</h4>
                 <ul>${contas}</ul>
               </div>` : ""}
           </div>
-        `;
-      })() : ""
-    }
+        </div>
+      `;
+    })() : ""
+  }
 
-    <div class="resumo-linha">
+  <div class="resumo-linha">
       <div class="resumo-card bg-servicos">
         <h4>👤 Visão do Cliente</h4>
         <p><strong>Custo Final:</strong> Houve uma ${cliente_mensal < 0 ? "redução" : "elevação"} de 
@@ -966,6 +1307,18 @@ function limparTudo() {
   });
 }
 
+
+
+
+
+function atualizarMensagemTipoCliente(valor) {
+  const container = document.getElementById("mensagem-tipo-cliente");
+  if (!container) return;
+
+  const mensagem = mensagensTipoCliente[valor] || "";
+  container.textContent = mensagem;
+  container.style.display = mensagem ? "block" : "none";
+}
 
 
 document.querySelectorAll('input[name="tipo-visao"]').forEach(radio => {

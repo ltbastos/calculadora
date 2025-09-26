@@ -257,6 +257,86 @@ input[disabled] {
   background-color: #dc3545;
 }
 
+.add-btn.azul {
+  background-color: #0056d6;
+}
+
+.campo-ajuda {
+  font-size: 0.85rem;
+  color: #4a5a6a;
+  margin-top: -6px;
+  margin-bottom: 12px;
+}
+
+.alerta-tipo-cliente {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #e8f4ff;
+  color: #003366;
+  font-size: 0.95rem;
+  display: none;
+}
+
+.descricao-secao {
+  font-size: 0.9rem;
+  color: #4b5b6d;
+  margin-bottom: 18px;
+}
+
+.form-actions.linha-add {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.tabela-pix th,
+.tabela-pix td {
+  text-align: center;
+}
+
+.resumo-pix {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.resumo-pix .resumo-card {
+  flex: 1;
+  min-width: 220px;
+}
+
+.resumo-taxas-simples {
+  display: flex;
+  justify-content: center;
+}
+
+.resumo-taxas-simples .card-total {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  max-width: 420px;
+  width: 100%;
+}
+
+.resumo-taxas-simples .card-total h4 {
+  margin-bottom: 16px;
+  color: #003366;
+}
+
+.resumo-taxas-simples .card-total p {
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.frase-comparativa {
+  margin-top: 14px;
+  font-weight: 600;
+  color: #003366;
+}
+
 .remove-btn {
   background-color: #dc3545;
   border: none;
