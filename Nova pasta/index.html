@@ -103,11 +103,12 @@
   </label>
 
 
-    <label style="display: block; margin-bottom: 10px; font-weight: bold;">Faturamento Total Mensal com Cartões (R$):
-      <input type="number" id="fat-mensal" placeholder="Ex: 50000" style="width: 100%; padding: 8px; margin-top: 5px;">
+    <label style="display: block; margin-bottom: 10px; font-weight: bold;">Faturamento mensal com Cartões (a ser negociado) - R$:
+      <input type="number" id="fat-mensal" placeholder="Ex: 50.000" style="width: 100%; padding: 8px; margin-top: 5px;">
     </label>
+    <p class="campo-ajuda" aria-live="polite">Valor a ser negociado passa ao Cliente.</p>
 
-    <label style="display: block; font-weight: bold;">Faturamento Total Anual com Cartões (R$):
+    <label style="display: block; font-weight: bold;">Faturamento total anual com Cartões (projeção) - R$:
       <input type="text" id="fat-anual" disabled style="width: 100%; padding: 8px; margin-top: 5px; background-color: #eaeaea;">
     </label> <br>
 
@@ -123,6 +124,8 @@
   <input type="radio" id="tipo-blindagem" name="tipo-cliente" value="Blindagem">
   <label for="tipo-blindagem">Blindagem</label>
 </div>
+
+    <div id="mensagem-tipo-cliente" class="alerta-tipo-cliente" aria-live="polite"></div>
 
     <div style="margin-top: 15px;">
     <label style="display: block; font-weight: bold; margin-bottom: 10px;">Recebíveis Antecipados (R.A)?</label>
@@ -151,25 +154,14 @@
     <button id="btn-toggle-parcelamento" onclick="toggleSeção('parcelamento-wrapper')">+ Parcelamento</button>
   </div>
 
-  <!-- QUADRANTES DE RESULTADO DAS TAXAS -->
+  <!-- QUADRANTE DE RESULTADO TOTAL DAS TAXAS -->
   <div id="resultado-taxas" class="resultado-taxas-box" style="display: none;">
-  <div class="quadrante-taxa visa">
-    <h4>💳 VISA</h4>
-    <p>Mensal: <strong>R$ <span id="visa-mensal">0,00</span></strong></p>
-    <p>Anual: <strong>R$ <span id="visa-anual">0,00</span></strong></p>
-  </div>
-
-  <div class="quadrante-taxa master">
-    <h4>💳 MASTER</h4>
-    <p>Mensal: <strong>R$ <span id="master-mensal">0,00</span></strong></p>
-    <p>Anual: <strong>R$ <span id="master-anual">0,00</span></strong></p>
-  </div>
-
-  <div class="quadrante-taxa elo">
-    <h4>💳 ELO</h4>
-    <p>Mensal: <strong>R$ <span id="elo-mensal">0,00</span></strong></p>
-    <p>Anual: <strong>R$ <span id="elo-anual">0,00</span></strong></p>
-  </div>
+    <div class="quadrante-taxa total">
+      <h4>📊 Resultado Total</h4>
+      <p>Diferença Mensal: <strong>R$ <span id="taxas-total-mensal">0,00</span></strong></p>
+      <p>Diferença Anual: <strong>R$ <span id="taxas-total-anual">0,00</span></strong></p>
+      <p id="taxas-mensagem-resumo" class="mensagem-resumo-taxas"></p>
+    </div>
   </div>
 
 </section>
@@ -245,15 +237,141 @@
 </section>
 
 
+<!-- Seção Pix na Maquininha -->
+<section class="pix-maquininha bg-servicos">
+  <h2>
+    <span>Pix na Maquininha</span>
+    <span class="tooltip-wrapper">
+      <span class="tooltip-icon">i</span>
+      <span class="tooltip-text">
+        Compare as tarifas atuais de Pix recebidas nas máquinas com a proposta Cielo.<br><br>
+        Informe o volume mensal em reais e as taxas praticadas para identificar o potencial de redução.
+      </span>
+    </span>
+  </h2>
+
+  <p class="descricao-secao">Abra quantas linhas desejar para detalhar cada produto Pix disponibilizado na maquininha.</p>
+
+  <form id="form-pix-maquininha">
+    <table class="tabela-equipamentos tabela-pix">
+      <thead>
+        <tr>
+          <th>Produto / Serviço</th>
+          <th>Volume Mês (R$)</th>
+          <th>Tarifa Atual (%)</th>
+          <th>Tarifa Proposta (%)</th>
+          <th>Redução Mês (R$)</th>
+          <th>Redução Ano (R$)</th>
+        </tr>
+      </thead>
+      <tbody id="pix-maquininha-tbody"></tbody>
+      <tfoot>
+        <tr>
+          <td><strong>Total</strong></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td class="bg-calculado"><span id="pix-maquininha-total-mes">0,00</span></td>
+          <td class="bg-calculado"><span id="pix-maquininha-total-ano">0,00</span></td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div class="form-actions linha-add">
+      <button type="button" class="add-btn azul" onclick="adicionarLinhaPixMaquininha()">+ Adicionar linha</button>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="add-btn green" onclick="calcularPixMaquininha()">Calcular Pix na Maquininha</button>
+      <button type="button" class="add-btn red" onclick="limparPixMaquininha()">Limpar Pix na Maquininha</button>
+    </div>
+  </form>
+
+  <div id="resultado-pix-maquininha" class="resumo-pix" style="display: none;">
+    <div class="resumo-card bg-servicos">
+      <h4>📉 Redução Mensal</h4>
+      <p>R$ <span id="resumo-pix-maquininha-mes">0,00</span></p>
+    </div>
+    <div class="resumo-card bg-servicos">
+      <h4>📅 Redução Anual</h4>
+      <p>R$ <span id="resumo-pix-maquininha-ano">0,00</span></p>
+    </div>
+  </div>
+</section>
+
+
+<!-- Seção Demais Serviços Pix -->
+<section class="demais-servicos-pix bg-servicos">
+  <h2>
+    <span>Demais Serviços Pix</span>
+    <span class="tooltip-wrapper">
+      <span class="tooltip-icon">i</span>
+      <span class="tooltip-text">
+        Inclua tarifas de Pix que não são recebidas pela maquininha, como transferências e recebimentos por canais digitais.<br><br>
+        O sistema calcula automaticamente o impacto mensal e anual.
+      </span>
+    </span>
+  </h2>
+
+  <form id="form-demais-pix">
+    <table class="tabela-equipamentos tabela-pix">
+      <thead>
+        <tr>
+          <th>Serviço</th>
+          <th>Volume Mês (R$)</th>
+          <th>Qtd. Transações</th>
+          <th>Valor Atual (R$)</th>
+          <th>Valor Proposto (R$)</th>
+          <th>Redução Mês (R$)</th>
+          <th>Redução Ano (R$)</th>
+        </tr>
+      </thead>
+      <tbody id="demais-pix-tbody"></tbody>
+      <tfoot>
+        <tr>
+          <td><strong>Total</strong></td>
+          <td></td>
+          <td class="bg-calculado"><span id="demais-pix-total-qtd">0</span></td>
+          <td></td>
+          <td></td>
+          <td class="bg-calculado"><span id="demais-pix-total-mes">0,00</span></td>
+          <td class="bg-calculado"><span id="demais-pix-total-ano">0,00</span></td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div class="form-actions linha-add">
+      <button type="button" class="add-btn azul" onclick="adicionarLinhaDemaisPix()">+ Adicionar linha</button>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="add-btn green" onclick="calcularDemaisServicosPix()">Calcular Serviços Pix</button>
+      <button type="button" class="add-btn red" onclick="limparDemaisServicosPix()">Limpar Serviços Pix</button>
+    </div>
+  </form>
+
+  <div id="resultado-demais-pix" class="resumo-pix" style="display: none;">
+    <div class="resumo-card bg-servicos">
+      <h4>📉 Redução Mensal</h4>
+      <p>R$ <span id="resumo-demais-pix-mes">0,00</span></p>
+    </div>
+    <div class="resumo-card bg-servicos">
+      <h4>📅 Redução Anual</h4>
+      <p>R$ <span id="resumo-demais-pix-ano">0,00</span></p>
+    </div>
+  </div>
+</section>
+
+
 <!-- Seção Serviços -->
 <section class="servicos bg-servicos">
   <h2>
   <h2>
-  <span><i class="fas fa-clipboard-list"></i> Produtos e Serviços</span>
+  <span><i class="fas fa-clipboard-list"></i> Produtos e Serviços Diversos</span>
   <span class="tooltip-wrapper">
     <span class="tooltip-icon">i</span>
     <span class="tooltip-text">
-      Esta seção compara os custos dos serviços cobrados atualmente com a proposta da Cielo. <br><br>
+      Esta seção compara os custos dos serviços gerais com a proposta da Cielo. <br><br>
        <strong>Como calculamos:</strong><br>
       • Subtraímos o valor proposto do valor atual (Atual - Proposto).<br>
       • Multiplicamos essa diferença pela quantidade de transações para saber a economia mensal.<br>
@@ -351,6 +469,85 @@
 
 
 
+
+
+<!-- Seção Produtos e Serviços Consolidados -->
+<section class="servicos-consolidados bg-servicos">
+  <h2>
+    <span>Produtos e Serviços Consolidados</span>
+    <span class="tooltip-wrapper">
+      <span class="tooltip-icon">i</span>
+      <span class="tooltip-text">
+        Some os resultados dos blocos de Produtos e Serviços Diversos, Pix na Maquininha e Demais Serviços Pix.
+        Assim você visualiza o impacto mensal e anual completo que será apresentado ao cliente.
+      </span>
+    </span>
+  </h2>
+
+  <p class="descricao-secao">Sistema calculará o valor "no mês" e "no ano", conforme abaixo.</p>
+
+  <div id="resultado-consolidado" class="resumo-pix" style="display: none;">
+    <div class="resumo-card bg-servicos">
+      <h4>📉 Redução Mensal Consolidada</h4>
+      <p>R$ <span id="consolidado-mensal">0,00</span></p>
+    </div>
+    <div class="resumo-card bg-servicos">
+      <h4>📅 Redução Anual Consolidada</h4>
+      <p>R$ <span id="consolidado-anual">0,00</span></p>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button type="button" class="add-btn green" onclick="calcularConsolidado()">Calcular Redução Consolidada</button>
+    <button type="button" class="add-btn red" onclick="limparConsolidado()">Limpar Consolidação</button>
+  </div>
+</section>
+
+
+<!-- Seção O que o Cliente trará na negociação -->
+<section class="negociacao-cliente bg-servicos">
+  <h2>
+    <span>O que o Cliente trará na negociação?</span>
+    <span class="tooltip-wrapper">
+      <span class="tooltip-icon">i</span>
+      <span class="tooltip-text">
+        Utilize esta tabela para registrar os volumes que serão negociados com o cliente.
+        Ao informar o valor mensal, o sistema projeta automaticamente o valor anual.
+      </span>
+    </span>
+  </h2>
+
+  <form id="form-negociacao">
+    <table class="tabela-equipamentos tabela-pix">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Volume Mês (R$)</th>
+          <th>Volume Ano (R$)</th>
+        </tr>
+      </thead>
+      <tbody id="negociacao-tbody"></tbody>
+      <tfoot>
+        <tr>
+          <td><strong>Total</strong></td>
+          <td class="bg-calculado"><span id="negociacao-total-mes">0,00</span></td>
+          <td class="bg-calculado"><span id="negociacao-total-ano">0,00</span></td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div class="form-actions linha-add">
+      <button type="button" class="add-btn azul" onclick="adicionarLinhaNegociacao()">+ Adicionar item</button>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="add-btn green" onclick="calcularNegociacao()">Calcular Volumes</button>
+      <button type="button" class="add-btn red" onclick="limparNegociacao()">Limpar Itens</button>
+    </div>
+  </form>
+</section>
+
+
 <!-- Seção Invest Fácil – Projeção com Conquista de Caixa -->
 <section class="invest-facil bg-invest">
   <h2>
@@ -374,7 +571,7 @@
   <table class="tabela-equipamentos">
     <thead>
       <tr>
-        <th>O QUE O CLIENTE TRARÁ NA NEGOCIAÇÃO</th>
+        <th>PRODUTOS / SERVIÇOS</th>
         <th>VOLUME MÊS (R$)</th>
         <th>VOLUME ANO (R$)</th>
       </tr>
@@ -396,6 +593,11 @@
         <td><input type="text" id="invest-pix-ano" disabled></td>
       </tr>
       <tr>
+        <td>Volume Pix na Maquininha</td>
+        <td><input type="number" id="invest-pix-maquininha" oninput="calcularInvestFacilParcial()"></td>
+        <td><input type="text" id="invest-pix-maquininha-ano" disabled></td>
+      </tr>
+      <tr>
         <td>Volume Pagamentos Diversos</td>
         <td><input type="number" id="invest-diversos" oninput="calcularInvestFacilParcial()"></td>
         <td><input type="text" id="invest-diversos-ano" disabled></td>
@@ -406,7 +608,7 @@
         <td><input type="text" id="invest-folha-ano" disabled></td>
       </tr>
       <tr>
-        <td><strong>Saldo</strong></td>
+        <td><strong>Saldo</strong><br><small class="nota-saldo">Sistema calcula automaticamente.</small></td>
         <td><input type="text" id="invest-saldo-mes" disabled></td>
         <td><input type="text" id="invest-saldo-ano" disabled></td>
       </tr>
@@ -443,50 +645,6 @@
 
 
 
-<!-- GDAD -->
-<section id="gdad-section" class="secao-calculo bg-gdad">
-  <h2>
-    <span>GDAD</span>
-    <span class="tooltip-wrapper">
-      <span class="tooltip-icon">i</span>
-      <span class="tooltip-text">
-        Este valor é calculado automaticamente com base no faturamento com cartões informado na seção <strong>Invest Fácil</strong>.<br><br>
-        Se R.A estiver marcado como <strong>Sim</strong>, o sistema aplica <strong>0,30%</strong> sobre o faturamento.<br>
-        Se R.A estiver como <strong>Não</strong>, aplica-se <strong>0,15%</strong>.<br><br>
-        O resultado representa o <strong>potencial estimado de retorno via GDAD</strong> em projeção mensal e anual.
-      </span>
-    </span>
-  </h2>
-
-  <form id="gdad-form">
-    <table class="tabela-equipamentos">
-      <thead>
-        <tr>
-          <th>DADO</th>
-          <th>VALOR (R$)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Faturamento com Cartões</td>
-          <td><input type="text" id="gdad-faturamento" disabled></td>
-        </tr>
-        <tr>
-          <td><strong>Resultado GDAD Projetado (Mês)</strong></td>
-          <td><input type="text" id="gdad-mes" disabled></td>
-        </tr>
-        <tr>
-          <td><strong>Resultado GDAD Projetado (Ano)</strong></td>
-          <td><input type="text" id="gdad-ano" disabled></td>
-        </tr>
-      </tbody>
-    </table>
-  </form>
-</section>
-
-
-
-
 
 
 <!-- Resumo Final -->
@@ -496,67 +654,20 @@
   <span class="tooltip-wrapper">
     <span class="tooltip-icon">i</span>
     <span class="tooltip-text">
-      Este resumo consolida os resultados das seções anteriores: taxas, equipamentos, serviços e Invest Fácil.
-      Ele ajuda a visualizar a economia estimada mensal e anual com a proposta atual.
+      Este resumo reúne os principais resultados das seções anteriores e tem como objetivo facilitar a visualização da economia estimada,
+      tanto mensal quanto anual, com base nas informações cadastradas ao longo da proposta.
+
+      Ao final da análise:<br>
+      • Somamos as diferenças obtidas nas seções de Taxas e Equipamentos.<br>
+      • Consolidamos os ganhos das seções de Produtos/Serviços e de Produtos/Serviços do Pix.<br>
+      • Incorporamos o resultado da seção "O que o Cliente trará na negociação?".<br>
+
+      Por fim, agregamos o resultado do Invest Fácil e geramos o saldo final.
     </span>
   </span>
 </h2>
 
-  <!-- Linha 1: Taxas + Equipamentos -->
-  <div class="resumo-linha">
-    <div class="resumo-card bg-taxas">
-      <h4>💳 Comparativo de Taxas</h4>
-      <p id="resumo-taxas-mensal">Mensal: <strong>0</strong></p>
-      <p id="resumo-taxas-anual">Anual: <strong>0</strong></p>
-    </div>
-
-    <div class="resumo-card bg-equipamentos">
-      <h4>🖥️ Equipamentos</h4>
-      <p id="resumo-equip-qtd-cielo">Qtd. Cielo: <strong>0</strong></p>
-      <p id="resumo-equip-qtd-conc">Qtd. Conc.: <strong>0</strong></p>
-      <p id="resumo-equip-custo-cielo">Custo Cielo: <strong>0</strong></p>
-      <p id="resumo-equip-custo-conc">Custo Conc.: <strong>0</strong></p>
-      <p id="resumo-equip-dif-total"><strong>Diferença Total: 0</strong></p>
-    </div>
-  </div>
-
-  <!-- Linha 2: Serviços + Invest Fácil -->
-  <div class="resumo-linha">
-    <div class="resumo-card bg-servicos">
-      <h4>🧾 Produtos e Serviços</h4>
-      <p id="resumo-serv-qtd">Qtd. Transações: <strong>0</strong></p>
-      <p id="resumo-serv-atual">Atual: <strong>0</strong></p>
-      <p id="resumo-serv-proposto">Proposto: <strong>0</strong></p>
-      <p id="resumo-serv-mensal">Mensal: <strong>0</strong></p>
-      <p id="resumo-serv-anual">Anual: <strong>0</strong></p>
-      <p id="resumo-serv-dif"><strong>Diferença Média: 0.0%</strong></p>
-    </div>
-
-    <div class="resumo-card bg-invest">
-      <h4>📥 Invest Fácil</h4>
-      <p id="resumo-invest-repasse-mes">Repasse Mês: <strong>0</strong></p>
-      <p id="resumo-invest-repasse-ano">Repasse Anual: <strong>0</strong></p>
-      <p id="resumo-invest-incremento-mes">Incremento Mês: <strong>0</strong></p>
-      <p id="resumo-invest-incremento-ano">Incremento Anual: <strong>0</strong></p>
-    </div>
-  </div>
-
-  <!-- Linha 3: GDAD -->
-  <div class="resumo-linha">
-    <div class="resumo-card resumo-gdad bg-resumo">
-      <h4>📘 Resultado GDAD</h4>
-      <p>Resultado GDAD Projetado (Mensal): <strong>R$ <span id="resumo-gdad-mes">0,00</span></strong></p>
-      <p>Resultado GDAD Projetado (Anual): <strong>R$ <span id="resumo-gdad-ano">0,00</span></strong></p>
-    </div>
-  </div>
-
-  <!-- Resultado Total Final -->
-  <div id="bloco-resultado-total" class="resumo-cliente destaque-resultado-final" style="margin-top: 30px; text-align: center;">
-    <p style="font-size: 1.15rem; margin-bottom: 10px;">
-      Para o cliente <strong id="nome-cliente-final">"Cliente não informado"</strong>, o resultado total projetado considerando todas as seções é de:
-    </p>
-    <p id="valor-total-final" class="valor-total-final">R$ 0,00</p>
-  </div>
+  <p class="resumo-placeholder">Preencha as seções acima e clique em <strong>Calcular Resumo</strong> para visualizar o consolidado final.</p>
 </section>
 
 

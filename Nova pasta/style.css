@@ -69,14 +69,6 @@ body {
   margin-bottom: 40px;
 }
 
-/* Seção 7 - GDAD (Verde Água Suave) */
-.bg-gdad {
-  background-color: #f3fbfb; /* verde-água bem claro */
-  padding: 30px;
-  border-radius: 12px;
-  margin-bottom: 40px;
-}
-
 h1 {
   text-align: center;
   margin-bottom: 30px;
@@ -138,6 +130,40 @@ h2 {
   padding: 30px;
   border-radius: 16px;
   margin-bottom: 40px;
+}
+
+.resultado-taxas-box {
+  display: none;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.quadrante-taxa.total {
+  background: #eef7f0;
+  border-radius: 14px;
+  padding: 24px 32px;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  max-width: 360px;
+  width: 100%;
+}
+
+.quadrante-taxa.total h4 {
+  color: #1b5e20;
+  margin-bottom: 12px;
+  font-size: 1.1rem;
+}
+
+.quadrante-taxa.total p {
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+  color: #24404f;
+}
+
+.mensagem-resumo-taxas {
+  margin-top: 12px;
+  font-size: 0.9rem;
+  color: #2f4858;
 }
 
 /* Tabelas comparativas */
@@ -255,6 +281,86 @@ input[disabled] {
 
 .add-btn.red {
   background-color: #dc3545;
+}
+
+.add-btn.azul {
+  background-color: #0056d6;
+}
+
+.campo-ajuda {
+  font-size: 0.85rem;
+  color: #4a5a6a;
+  margin-top: -6px;
+  margin-bottom: 12px;
+}
+
+.alerta-tipo-cliente {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #e8f4ff;
+  color: #003366;
+  font-size: 0.95rem;
+  display: none;
+}
+
+.descricao-secao {
+  font-size: 0.9rem;
+  color: #4b5b6d;
+  margin-bottom: 18px;
+}
+
+.form-actions.linha-add {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.tabela-pix th,
+.tabela-pix td {
+  text-align: center;
+}
+
+.resumo-pix {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.resumo-pix .resumo-card {
+  flex: 1;
+  min-width: 220px;
+}
+
+.resumo-taxas-simples {
+  display: flex;
+  justify-content: center;
+}
+
+.resumo-taxas-simples .card-total {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  max-width: 420px;
+  width: 100%;
+}
+
+.resumo-taxas-simples .card-total h4 {
+  margin-bottom: 16px;
+  color: #003366;
+}
+
+.resumo-taxas-simples .card-total p {
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.frase-comparativa {
+  margin-top: 14px;
+  font-weight: 600;
+  color: #003366;
 }
 
 .remove-btn {
@@ -512,11 +618,6 @@ input[disabled] {
   display: none; /* MANTÉM OCULTO por padrão */
 }
 
-.resumo-gdad {
-  background-color: #f3fbfb; /* azul claro para destacar GDAD */
-}
-
-
 .quadrante-invest {
   flex: 1;
   min-width: 240px;
@@ -593,6 +694,15 @@ input[disabled] {
   transition: all 0.3s ease-in-out;
 }
 
+.resumo-placeholder {
+  font-size: 0.95rem;
+  color: #4b5b6d;
+  background: #f0f4f8;
+  border-radius: 10px;
+  padding: 18px 22px;
+  border-left: 4px solid #5b8def;
+}
+
 /* ==== RESUMO FINAL DESTACADO ==== */
 .resumo-destacado {
   margin-top: 30px;
@@ -666,6 +776,36 @@ input[disabled] {
   font-size: 0.95rem;
   margin-bottom: 6px;
   line-height: 1.4;
+}
+
+.destaque-diferenca {
+  margin-top: 8px;
+  font-weight: 600;
+  color: #003366;
+}
+
+.mensagem-comparativo {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  color: #4a5a6a;
+}
+
+.texto-mensal-equivalente {
+  font-size: 0.9rem;
+  color: #4b5b6d;
+  margin-top: 6px;
+}
+
+.negociacao-card {
+  background-color: #fff5eb;
+  border: 1px solid #ffd7a3;
+}
+
+.nota-saldo {
+  display: block;
+  font-size: 0.75rem;
+  color: #526173;
+  margin-top: 6px;
 }
 
 .resumo-cliente {
